@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一般大學-跨域課程模組資源地圖</title>
+    <!-- 載入關鍵前端依賴庫 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background-color: #f8fafc; /* 經典 Slate 50 淺灰底色 */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            color: #1e293b; /* 深石板灰字體 */
+        }
+        /* 明亮版磨砂玻璃特效 */
+        .glass-sidebar { 
+            background: rgba(255, 255, 255, 0.88); 
+            backdrop-filter: blur(30px); 
+            border-right: 1px solid rgba(15, 23, 42, 0.08); 
+        }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(15, 23, 42, 0.05); 
+        }
+        /* D3 節點文字陰影設定 - 放大字體至 12px 提高辨識度 */
+        .node-label { 
+            font-size: 12px; 
+            font-weight: 900; 
+            pointer-events: none; 
+            fill: #ffffff; 
+            text-shadow: 0 1.5px 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.85); 
+        }
+        /* D3 連線關係文字設定 - 放大至 10px 並加強白色發光對比 */
+        .link-label { 
+            font-size: 10px; 
+            font-weight: 900; 
+            fill: #334155; /* Slate 700 */
+            pointer-events: none; 
+            text-shadow: 0 1px 6px rgba(255,255,255,1), 0 0 3px rgba(255,255,255,1); 
+        }
+        /* 滾動條樣式 */
+        ::-webkit-scrollbar { 
+            width: 5px; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #cbd5e1; 
+            border-radius: 10px; 
+        }
+        /* 側邊欄與動畫過渡 */
+        .transition-all-custom { 
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const App = () => {
+            const [data, setData] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+            const [selectedNode, setSelectedNode] = useState(null);
+            const [activePhase, setActivePhase] = useState(null);
+            const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+            
+            const svgRef = useRef(null);
+            
+            // 使用 Refs 保留 D3 實體，避免簡單 UI 交互頻繁銷毀重繪
+            const svgSelectRef = useRef(null);
+            const zoomRef = useRef(null);
+            const simRef = useRef(null);
+            const nodesDataRef = useRef([]);
+            const nodeSelectionRef = useRef(null);
+            const linkSelectionRef = useRef(null);
+            const linkLabelSelectionRef = useRef(null);
+
+            // 四大階段之關鍵步驟與 VRIO 戰略建議 (提升字體與資訊寬度)
+            const phaseStrategy = {
+                'PHASE 01: 建立學程架構': {
+                    title: '建立學分學程架構',
+                    steps: [
+                        '制定跨院科目表，將原民音樂與文化融合課程（如：全人通識）正式納入大學學分。',
+                        '啟動校級行政核備（結合教務處、全人教育課程中心），開通跨院選課通道與機制。',
+                        '設計原流學程專屬 Logo 與品牌識別，辦理招生說明會凝聚校內跨族群共學青年。'
+                    ],
+                    suggestions: '在行政初期應強化「開課單位與行政中樞」的授權整合。雖然前期行政審議（比重 1）事務繁重，但這是確保學位學程合法性與永續經營必不可少的地基。'
+                },
+                'PHASE 02: 產學技術對接': {
+                    title: '產學大師技術深度對接',
+                    steps: [
+                        '引進金曲入圍等級之原民業界大師與資深錄音師，入校協同主持「陪伴式」實作工作坊。',
+                        '整合藝術學院與音樂學系百萬級電子音樂、專業錄音室硬體設備，建構頂級實作場域。',
+                        '對接外部唱片經紀與發行生態系，提供學生錄音、混音、母帶處理等專業實習機會。'
+                    ],
+                    suggestions: '技術對接的核心在於「VRIO 實體與無形資產」的交融。百萬級專業錄音室（比重 4）需搭配「金曲校友輔導」才能產生最大技術溢出，建議建立設備借用與維護標準。'
+                },
+                'PHASE 03: 文化內涵深耕': {
+                    title: '文化底蘊與原鄉聲音溯源',
+                    steps: [
+                        '開設精準的族語沉浸式與傳統古調傳唱培訓，由傳統領袖與耆老擔任傳承導師。',
+                        '帶領學員組成採集與田調團隊，深入文化原鄉，錄製最具純正傳承意義的部落原生聲響。',
+                        '發揮自治學生社團（如拿珊瑪谷社）功能，在校園內搭建沉浸式傳統竹構或獵寮地標。'
+                    ],
+                    suggestions: '文化深耕是本計畫不可模仿的競爭護城河（比重 5）。進行古調傳唱與田野調查前，必須嚴格落實「原鄉知情同意與倫理檢核（SOP）」，保護部落無形知識產權。'
+                },
+                'PHASE 04: 培育成果驗收': {
+                    title: '跨域合輯發行與成果展示',
+                    steps: [
+                        '集成各組成果，產出「原來很音樂 II」原民數位創作合輯，完成數位串流音樂上架。',
+                        '由學生自主組織導演、攝影、燈光團隊，協力完成主打歌曲之專業級 MV 影像產製。',
+                        '舉辦年度大型跨校聯合巡演與動態發表，並透過校級 IR 數據精準監測培育人才就業力。'
+                    ],
+                    suggestions: '成果驗收應從單純的「展演辦活動」提升為「典範人才職涯發展追蹤（比重 5）」。建議以個人「專業作品集（Portfolio）」作為結業審查標準，直接對標就業市場。'
+                }
+            };
+
+            // 111學年度原流學程期末報告 - 45筆去識別化備用數據
+            const fallbackData = {
+                nodes: [
+                    { id: "PHASE 01: 建立學程架構", group: "PHASE 01: 建立學程架構", importance: 5, desc: "學程行政核備、跨院協調、規章制定與品牌識別階段。", source: "系統定義" },
+                    { id: "PHASE 02: 產學技術對接", group: "PHASE 02: 產學技術對接", importance: 5, desc: "大師協作、專業錄音場域、數位音訊硬體與實習媒合階段。", source: "系統定義" },
+                    { id: "PHASE 03: 文化內涵深耕", group: "PHASE 03: 文化內涵深耕", importance: 5, desc: "古調採集、族語沉浸式培訓、部落溯源與認同重塑階段。", source: "系統定義" },
+                    { id: "PHASE 04: 培育成果驗收", group: "PHASE 04: 培育成果驗收", importance: 5, desc: "合輯音樂上架、專業MV拍攝、跨校成果發表與就業追蹤階段。", source: "系統定義" },
+                    
+                    // PHASE 01
+                    { id: "跨院學程規章審核", group: "PHASE 01: 建立學程架構", importance: 1, desc: "行政維持成本。教務處常態性規章審定，確保「學分學程」在體系中的開課法規與合規性。", source: "[行政授權]" },
+                    { id: "通識學分跨院對開", group: "PHASE 01: 建立學程架構", importance: 3, desc: "結構性資本。全人教育中心共同合作，將「原民流行音樂與文化課程」學分納入通識課程。", source: "[行政授權]" },
+                    { id: "學程 Logo 設計與推廣", group: "PHASE 01: 建立學程架構", importance: 2, desc: "視覺符號資產。學程專屬 brand Logo 與整體視覺識別，用於成果發表、合輯、自媒體包裝中。", source: "[技術指標]" },
+                    { id: "招生說明會辦理", group: "PHASE 01: 建立學程架構", importance: 2, desc: "情感動員。期初於校內及夥伴學校舉辦招生宣傳，藉由實體互動吸引跨院系隱性學員。", source: "[學生組織]" },
+                    { id: "專家諮詢委員會", group: "PHASE 01: 建立學程架構", importance: 3, desc: "治理監督。聘任校外原民政策長老與產業界大師，監督學程經費流向與資源配置之正確性。", source: "[行政授權]" },
+                    { id: "跨領域產業學程", group: "PHASE 01: 建立學程架構", importance: 5, desc: "頂層戰略資產。正式核准的校級「跨領域流行音樂學分學程」，打通藝術、傳播、民研等學院高牆。", source: "[核心主軸]" },
+                    { id: "畢業證書核發機制", group: "PHASE 01: 建立學程架構", importance: 2, desc: "程序資產。配合教務處制定的學程修業期滿與專屬結業證書發放標準，增加學員投入動因。", source: "[行政授權]" },
+                    { id: "行政庶務核銷", group: "PHASE 01: 建立學程架構", importance: 1, desc: "維持成本。活動基本餐飲支出，零戰略價值但為行政流程與出席率凝聚的最低限度保障。", source: "[行政瑣務]" },
+                    { id: "專職輔導員薪資核算", group: "PHASE 01: 建立學程架構", importance: 1, desc: "維持成本。教育部或校級人事編制薪資報帳，屬剛性勞務。維持中樞日常關懷量能的行政保障。", source: "[行政授權]" },
+                    { id: "成果報告與核銷彙整", group: "PHASE 01: 建立學程架構", importance: 1, desc: "績效產出成本。年底、期中向政府機關與校方核銷核備的文書彙整，屬於無法避免的行政義務。", source: "[行政授權]" },
+                    { id: "公務網站信箱收發管理", group: "PHASE 01: 建立學程架構", importance: 1, desc: "資訊管道。中心日常文書收發、轉知、回報之基本營運流程，支撐系統基礎溝通。", source: "[行政瑣務]" },
+
+                    // PHASE 02
+                    { id: "金曲等級校友業師", group: "PHASE 02: 產學技術對接", importance: 5, desc: "稀缺名師資本。邀請在產業界有金曲獎入圍/獲獎的頂級校友駐校指導，縮短學生的社會資本落差。", source: "[核心主軸]" },
+                    { id: "百萬級專業錄音室", group: "PHASE 02: 產學技術對接", importance: 4, desc: "硬體實體資本。整合藝術學院音樂學系專業錄音與混音空間，提供對標業界標準的實作場域。", source: "[技術指標]" },
+                    { id: "自媒體與數位音樂講座", group: "PHASE 02: 產學技術對接", importance: 3, desc: "技術資產。邀請業師進行線上版權、串流發行與 Podcast 品牌行銷之單場或主題式技能講座。", source: "[產學對接]" },
+                    { id: "錄音混音實務培訓", group: "PHASE 02: 產學技術對接", importance: 4, desc: "技能賦能。由業界錄音師駐校指導學生操作 DAW 軟體，培育數位時代的音樂產製工程人才。", source: "[技術指標]" },
+                    { id: "產業實習機會媒合", group: "PHASE 02: 產學技術對接", importance: 4, desc: "三螺旋（市場對接）。與業界音樂製作室、傳播公司合作，提供高年級學員專屬的業界實習管道。", source: "[產學對接]" },
+                    { id: "專業級錄混音設備", group: "PHASE 02: 產學技術對接", importance: 4, desc: "硬體資產。配合音樂系設備升級，引進頂級音訊介面、專業話筒、合成器與電子音樂錄製硬體。", source: "[技術指標]" },
+                    { id: "工讀金與一般獎學金", group: "PHASE 02: 產學技術對接", importance: 2, desc: "基礎福利。提供原資中心工讀機會，舒緩學生經濟適應焦慮，也是引導參與高階培訓的基礎拉力。", source: "[核心主軸]" },
+                    { id: "設備維護與年度盤點", group: "PHASE 02: 產學技術對接", importance: 1, desc: "硬體管理。針對相機、筆電、音響等租賃或採購硬體進行年度盤點與報修，屬於低戰略價值但必須。", source: "[行政瑣務]" },
+                    { id: "自主創業孵化培育", group: "PHASE 02: 產學技術對接", importance: 4, desc: "三螺旋（高端）。輔導優秀合輯作品學生團隊參與教育部創業計畫，探索原民音樂變現的商業模式。", source: "[產學資源]" },
+
+                    // PHASE 03
+                    { id: "部落聲音採集與田野", group: "PHASE 03: 文化內涵深耕", importance: 4, desc: "文化資本。帶領學生在暑期返鄉進行古調傳唱與自然音景採集，作為數位創作音樂最純正的基底。", source: "[部落連結]" },
+                    { id: "族語沉浸式工作坊", group: "PHASE 03: 文化內涵深耕", importance: 3, desc: "能力資產。提升語言主體性，由傳統語文大師深度指導歌詞翻譯與當代族語拼音。", source: "[族語教學]" },
+                    { id: "傳統古調流行再造", group: "PHASE 03: 文化內涵深耕", importance: 4, desc: "轉譯價值核心。將採集的古調或傳統聲響融合西方電子音樂或現代編曲，產出具備競爭力的文化載體。", source: "[文化深耕]" },
+                    { id: "都會經驗認同修復", group: "PHASE 03: 文化內涵深耕", importance: 5, desc: "精神資本。針對非部落長大的都會原住民青年，建立認同工作坊，修復因遷徙產生的文化與認同失落。", source: "[社會資本]" },
+                    { id: "傳統樂器製作工作坊", group: "PHASE 03: 文化內涵深耕", importance: 4, desc: "VRIO 技術。邀請耆老親自傳授竹鼓、鼻笛、木琴製作工藝，實踐「做中學」以傳承無形資產。", source: "[文化深耕]" },
+                    { id: "傳統祭儀校園實踐", group: "PHASE 03: 文化內涵深耕", importance: 3, desc: "儀式資本。於校慶辦理部落地區傳統祭典實踐（如小米收穫祭、成年禮），強化學生的族群歸屬感。", source: "[文化深耕]" },
+                    { id: "民族史觀知識庫", group: "PHASE 03: 文化內涵深耕", importance: 5, desc: "知識治理。將採集的祭儀、歌詞與傳統歌謠進行嚴謹的學術化研究整理，建構專屬的史觀系統。", source: "[文化深耕]" },
+                    { id: "一生四師陪伴計畫", group: "PHASE 03: 文化內涵深耕", importance: 3, desc: "社會安全網。專職原民導師、系所心理師、課業助理與部落導師，多對一全方位關懷，提供高黏著。", source: "[核心主軸]" },
+                    { id: "活動保險與差旅報支", group: "PHASE 03: 文化內涵深耕", importance: 1, desc: "風險防禦成本。辦理部落地區參訪、跨校發表、田野調查之剛性核銷程序，屬於行政基礎保障。", source: "[行政瑣務]" },
+                    { id: "族語快閃錄音空間", group: "PHASE 03: 文化內涵深耕", importance: 2, desc: "弱連結觸及。在校園一角建立行動快閃錄音室，吸引非原住民師生錄製簡單族語，推廣全民原教。", source: "[族語教學]" },
+                    { id: "空間美學共構計畫", group: "PHASE 03: 文化內涵深耕", importance: 4, desc: "實務社群。由原民生與美術系、音樂系等師生共同改造原資空間，注入部落美學，提高空間留存。", source: "[文化深耕]" },
+                    { id: "雙語與符號空間改造", group: "PHASE 03: 文化內涵深耕", importance: 3, desc: "符號資本。在校園路標、原資中心空間置入族語拼音，透過實體改造，提升校園多元文化曝光。", source: "[技術指標]" },
+
+                    // PHASE 04
+                    { id: "音樂合輯製作", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "111年度集體創作精選「原來很音樂 II」實體與數位合輯產製成果。", source: "[成果驗收]" },
+                    { id: "學員 MV 影像影音產製", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "培訓學生擔任導演、攝影與剪輯，完成原創歌曲之專業級 MV 影片拍攝與後製。", source: "[技術指標]" },
+                    { id: "年度大型跨域發表展演", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "於校內外舉辦成果發表音樂會，集結系所音樂技術與部落古調精華之年度盛典。", source: "[成果驗收]" },
+                    { id: "校務 IR 精準預警追蹤", group: "PHASE 04: 培育成果驗收", importance: 5, desc: "數據治理。承接教務處數據，運用 IR 分析，精準對高風險、退學危機學生進行一對一關懷介入。", source: "[績效指標]" },
+                    { id: "一站式輔導樞紐", group: "PHASE 04: 培育成果驗收", importance: 5, desc: "典範學校能力。將行政、學業輔導、心理諮商整合，由專任輔導專員擔任窗口，防止資訊不對稱。", source: "[核心主軸]" },
+                    { id: "雙導師與三級輔導", group: "PHASE 04: 培育成果驗收", importance: 5, desc: "支持系統。結合系所學術導師、原資中心專責輔導員與校友職涯導師，建立多層次社會資本保護網。", source: "[核心主軸]" },
+                    { id: "自治社團", group: "PHASE 04: 培育成果驗收", importance: 3, desc: "情感凝聚 CoP。校內原住民學生成長、集會之自治組織，提供新生的同儕輔導與校園倡議。", source: "[學生組織]" },
+                    { id: "原民小畢典與成年禮", group: "PHASE 04: 培育成果驗收", importance: 3, desc: "儀式資本。每年辦理具傳統文化特色的小畢典，強化畢業學員與原資中心的深層社會連結。", source: "[成果驗收]" },
+                    { id: "期中預警人工電訪", group: "PHASE 04: 培育成果驗收", importance: 2, desc: "被動式防守。由原資輔導專員人工篩選預警學籍名單並逐一電話訪談，屬於科學 IR 的人工前置作業。", source: "[核心主軸]" },
+                    { id: "全民原教知能研習", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "制度創新。針對全校行政與學術主管辦理文化敏感度培訓，消除校園中的潛在隱微歧視。", source: "[戰略輸出]" },
+                    { id: "跨校成果聯合巡演", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "規模經濟。帶動區域夥伴學校辦理巡迴展演，擴大計畫影響力，確立本校之「教練示範地位」。", source: "[成果驗收]" },
+                    { id: "學生專業作品集製作", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "人力資本。引導每位修課學員完成一首完整的混音作品 or MV，以此作品集對標市場就讀就業。", source: "[績效指標]" }
+                ],
+                links: [
+                    { source: "PHASE 01: 建立學程架構", target: "跨院學程規章審核", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "通識學分跨院對開", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "學程 Logo 設計與推廣", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "招生說明會辦理", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "專家諮詢委員會", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "跨領域產業學程", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "畢業證書核發機制", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "行政庶務核銷", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "專職輔導員薪資核算", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "成果報告與核銷彙整", label: "歸屬" },
+                    { source: "PHASE 01: 建立學程架構", target: "公務網站信箱收發管理", label: "歸屬" },
+
+                    { source: "PHASE 02: 產學技術對接", target: "金曲等級校友業師", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "百萬級專業錄音室", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "自媒體與數位音樂講座", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "錄音混音實務培訓", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "產業實習機會媒合", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "專業級錄混音設備", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "工讀金與一般獎學金", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "設備維護與年度盤點", label: "歸屬" },
+                    { source: "PHASE 02: 產學技術對接", target: "自主創業孵化培育", label: "歸屬" },
+
+                    { source: "PHASE 03: 文化內涵深耕", target: "部落聲音採集與田野", label: "歸屬" }, 
+                    { source: "PHASE 03: 文化內涵深耕", target: "族語沉浸式工作坊", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "傳統古調流行再造", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "都會經驗認同修復", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "傳統樂器製作工作坊", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "傳統祭儀校園實踐", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "民族史觀知識庫", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "一生四師陪伴計畫", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "活動保險與差旅報支", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "族語快閃錄音空間", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "空間美學共構計畫", label: "歸屬" },
+                    { source: "PHASE 03: 文化內涵深耕", target: "雙語與符號空間改造", label: "歸屬" },
+
+                    { source: "PHASE 04: 培育成果驗收", target: "音樂合輯製作", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "學員 MV 影像影音產製", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "年度大型跨域發表展演", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "校務 IR 精準預警追蹤", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "一站式輔導樞紐", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "雙導師與三級輔導", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "自治社團", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "原民小畢典與成年禮", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "期中預警人工電訪", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "全民原教知能研習", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "跨校成果聯合巡演", label: "歸屬" },
+                    { source: "PHASE 04: 培育成果驗收", target: "學生專業作品集製作", label: "歸屬" },
+
+                    // 跨越階段之橫向連鎖線
+                    { source: "通識學分跨院對開", target: "招生說明會辦理", label: "宣傳對接" },
+                    { source: "學程 Logo 設計與推廣", target: "音樂合輯製作", label: "視覺包裝" },
+                    { source: "專家諮詢委員會", target: "跨院學程規章審核", label: "治理監督" },
+                    { source: "金曲等級校友業師", target: "音樂合輯製作", label: "大師輔導" },
+                    { source: "百萬級專業錄音室", target: "錄音混音實務培訓", label: "實作場域" },
+                    { source: "專業級錄混音設備", target: "錄音混音實務培訓", label: "硬體支援" },
+                    { source: "錄音混音實務培訓", target: "音樂合輯製作", label: "技術支援" },
+                    { source: "部落聲音採集與田野", target: "傳統古調流行再造", label: "素材回流" },
+                    { source: "族語沉浸式工作坊", target: "傳統古調流行再造", label: "語法把關" },
+                    { source: "傳統古調流行再造", target: "音樂合輯製作", label: "核心音軌" },
+                    { source: "音樂合輯製作", target: "學員 MV 影像影音產製", label: "影音整合" },
+                    { source: "音樂合輯製作", target: "年度大型跨域發表展演", label: "舞台發表" },
+                    { source: "自治社團", target: "年度大型跨域發表展演", label: "社團動員" },
+                    { source: "一站式輔導樞紐", target: "校務 IR 精準預警追蹤", label: "精準輔導" },
+                    { source: "雙導師與三級輔導", target: "一站式輔導樞紐", label: "三級聯防" },
+                    { source: "學員 MV 影像影音產製", target: "學生專業作品集製作", label: "作品累積" }
+                ]
+            };
+
+            const phases = [
+                { id: 'PHASE 01: 建立學程架構', title: '建立學程架構' },
+                { id: 'PHASE 02: 產學技術對接', title: '產學大師技術對接' },
+                { id: 'PHASE 03: 文化內涵深耕', title: '文化內涵與原鄉深耕' },
+                { id: 'PHASE 04: 培育成果驗收', title: '培育成果與合輯發行' }
+            ];
+
+            useEffect(() => {
+                if (typeof google !== 'undefined' && google.script && google.script.run) {
+                    google.script.run
+                        .withSuccessHandler((res) => {
+                            try {
+                                const parsed = JSON.parse(res);
+                                if (parsed.error || !parsed.nodes || parsed.nodes.length === 0) {
+                                    setData(fallbackData);
+                                } else {
+                                    setData(parsed);
+                                }
+                            } catch (e) {
+                                setData(fallbackData);
+                            }
+                            setLoading(false);
+                        })
+                        .withFailureHandler((err) => {
+                            setData(fallbackData);
+                            setLoading(false);
+                        })
+                        .getSpreadsheetData();
+                } else {
+                    setTimeout(() => {
+                        setData(fallbackData);
+                        setLoading(false);
+                    }, 500);
+                }
+            }, []);
+
+            // ==========================================
+            // 🛡️ 核心繪圖生命週期 (僅在數據初始化或重載時執行一次)
+            // ==========================================
+            useEffect(() => {
+                if (!data || !svgRef.current || data.nodes.length === 0) return;
+
+                try {
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    
+                    const svg = d3.select(svgRef.current)
+                        .attr("width", width)
+                        .attr("height", height);
+                    svg.selectAll("*").remove();
+                    svgSelectRef.current = svg;
+
+                    const g = svg.append("g");
+                    
+                    const zoom = d3.zoom()
+                        .scaleExtent([0.15, 3])
+                        .on("zoom", (e) => g.attr("transform", e.transform));
+                    svg.call(zoom);
+                    zoomRef.current = zoom;
+
+                    // 深度複製防React污染
+                    const nodes = data.nodes.map(d => ({ ...d }));
+                    const links = data.links.map(d => ({ ...d }));
+                    nodesDataRef.current = nodes;
+
+                    // 檢查過濾幽靈連線
+                    const nodeIds = new Set(nodes.map(n => n.id));
+                    const safeLinks = links.filter(l => {
+                        const sId = typeof l.source === 'object' ? l.source.id : l.source;
+                        const tId = typeof l.target === 'object' ? l.target.id : l.target;
+                        return nodeIds.has(sId) && nodeIds.has(tId);
+                    });
+
+                    // 物理引擎設定
+                    const simulation = d3.forceSimulation(nodes)
+                        .force("link", d3.forceLink(safeLinks).id(d => d.id).distance(220))
+                        .force("charge", d3.forceManyBody().strength(-2800))
+                        .force("center", d3.forceCenter(width * (isSidebarOpen ? 0.62 : 0.5), height / 2))
+                        .force("collision", d3.forceCollide().radius(75));
+                    simRef.current = simulation;
+
+                    // 渲染連線 (淡灰線，添加 transition 提升聯動平滑感)
+                    const link = g.append("g").selectAll("line")
+                        .data(safeLinks)
+                        .join("line")
+                        .attr("stroke", "#cbd5e1")
+                        .attr("stroke-opacity", 0.75)
+                        .attr("stroke-width", 1.5)
+                        .style("transition", "opacity 0.4s ease");
+                    linkSelectionRef.current = link;
+
+                    // 渲染連線關係文字
+                    const linkLabel = g.append("g").selectAll("text")
+                        .data(safeLinks)
+                        .join("text")
+                        .attr("class", "link-label")
+                        .attr("text-anchor", "middle")
+                        .text(d => d.label || "關聯")
+                        .style("transition", "opacity 0.4s ease");
+                    linkLabelSelectionRef.current = linkLabel;
+
+                    // 渲染節點組
+                    const node = g.append("g").selectAll("g")
+                        .data(nodes)
+                        .join("g")
+                        .style("cursor", "pointer")
+                        .style("transition", "opacity 0.4s ease")
+                        .call(d3.drag()
+                            .on("start", (e, d) => { 
+                                if (!e.active) simulation.alphaTarget(0.3).restart(); 
+                                d.fx = d.x; d.fy = d.y; 
+                            })
+                            .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+                            .on("end", (e, d) => { 
+                                if (!e.active) simulation.alphaTarget(0); 
+                                d.fx = null; d.fy = null; 
+                            }))
+                        .on("click", (e, d) => { 
+                            e.stopPropagation(); 
+                            setSelectedNode(d); 
+                        });
+                    nodeSelectionRef.current = node;
+
+                    const colors = {
+                        'PHASE 01: 建立學程架構': '#2563eb', // 皇家藍
+                        'PHASE 02: 產學技術對接': '#059669', // 翡翠綠
+                        'PHASE 03: 文化內涵深耕': '#db2777', // 玫瑰粉
+                        'PHASE 04: 培育成果驗收': '#FFA500'  // 橘色
+                    };
+
+                    node.append("circle")
+                        .attr("r", d => d.importance * 7 + 10)
+                        .attr("fill", d => colors[d.group] || "#475569")
+                        .attr("stroke", d => d.importance > 4 ? "#d97706" : "#ffffff") 
+                        .attr("stroke-width", d => d.importance > 4 ? 3 : 1.5);
+
+                    node.append("text")
+                        .text(d => d.id)
+                        .attr("text-anchor", "middle")
+                        .attr("dy", ".3em")
+                        .attr("class", "node-label");
+
+                    simulation.on("tick", () => {
+                        link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+                            .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+                        
+                        linkLabel
+                            .attr("x", d => (d.source.x + d.target.x) / 2)
+                            .attr("y", d => (d.source.y + d.target.y) / 2);
+
+                        node.attr("transform", d => `translate(${d.x},${d.y})`);
+                    });
+
+                    // 初始加載時置中縮放
+                    const initScale = 0.75;
+                    svg.transition().duration(1000).call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(initScale));
+
+                } catch (err) {
+                    console.error("D3 渲染失敗：", err);
+                    setError("圖譜引擎解析異常：" + err.message);
+                }
+            }, [data]);
+
+            // ==========================================
+            // 🎯 PHASE / SIDEBAR 點擊聯動自動位移與對焦核心 (V6.2 旗艦更新)
+            // ==========================================
+            useEffect(() => {
+                if (!data || !svgSelectRef.current || !zoomRef.current || !nodesDataRef.current.length) return;
+
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                const svg = svgSelectRef.current;
+                const zoom = zoomRef.current;
+                const nodes = nodesDataRef.current;
+                
+                const node = nodeSelectionRef.current;
+                const link = linkSelectionRef.current;
+                const linkLabel = linkLabelSelectionRef.current;
+
+                if (!node || !link || !linkLabel) return;
+
+                // 動態微調力學中樞重力，適應側邊欄寬度變化
+                if (simRef.current) {
+                    simRef.current.force("center", d3.forceCenter(width * (isSidebarOpen ? 0.62 : 0.5), height / 2));
+                    simRef.current.alpha(0.08).restart(); // 微調讓重心平滑過渡
+                }
+
+                if (activePhase) {
+                    // 1. 高亮核心階段節點與關聯，其餘淡出
+                    node.style("opacity", d => d.group === activePhase ? 1 : 0.05);
+                    link.style("opacity", d => d.source.group === activePhase && d.target.group === activePhase ? 1 : 0.01);
+                    linkLabel.style("opacity", d => d.source.group === activePhase && d.target.group === activePhase ? 1 : 0);
+
+                    // 2. 獲取當前高亮階段的「中樞大節點」
+                    const phaseHubNode = nodes.find(n => n.id === activePhase);
+                    if (phaseHubNode) {
+                        const targetScale = 1.15; // 置中並放大對焦
+                        const centerOffsetX = width * (isSidebarOpen ? 0.62 : 0.5);
+                        const centerOffsetY = height / 2;
+
+                        // 計算平移轉換矩陣
+                        const targetX = centerOffsetX - phaseHubNode.x * targetScale;
+                        const targetY = centerOffsetY - phaseHubNode.y * targetScale;
+
+                        svg.transition()
+                            .duration(1200)
+                            .ease(d3.easeCubicInOut)
+                            .call(zoom.transform, d3.zoomIdentity.translate(targetX, targetY).scale(targetScale));
+                    }
+                } else {
+                    // 恢復全視角
+                    node.style("opacity", 1);
+                    link.style("opacity", 0.65);
+                    linkLabel.style("opacity", 1);
+
+                    const scale = 0.75;
+                    const centerOffsetX = width * (isSidebarOpen ? 0.62 : 0.5);
+                    const centerOffsetY = height / 2;
+
+                    svg.transition()
+                        .duration(1000)
+                        .ease(d3.easeCubicInOut)
+                        .call(zoom.transform, d3.zoomIdentity.translate(centerOffsetX - (width * 0.5) * scale, centerOffsetY - (height * 1.9 / 4) * scale).scale(scale));
+                }
+            }, [activePhase, isSidebarOpen, data]);
+
+            // ==========================================
+            // 🎯 點擊單個關聯節點，飛入精確對焦 (V6.2 深度優化)
+            // ==========================================
+            useEffect(() => {
+                if (!selectedNode || !svgSelectRef.current || !zoomRef.current || !nodesDataRef.current.length) return;
+
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                const svg = svgSelectRef.current;
+                const zoom = zoomRef.current;
+                const nodes = nodesDataRef.current;
+
+                const targetNode = nodes.find(n => n.id === selectedNode.id);
+                if (targetNode) {
+                    const focusScale = 1.35; // 極致對焦放大倍率
+                    const centerOffsetX = width * (isSidebarOpen ? 0.62 : 0.5);
+                    const centerOffsetY = height / 2;
+
+                    const targetX = centerOffsetX - targetNode.x * focusScale;
+                    const targetY = centerOffsetY - targetNode.y * focusScale;
+
+                    svg.transition()
+                        .duration(1100)
+                        .ease(d3.easeCubicInOut)
+                        .call(zoom.transform, d3.zoomIdentity.translate(targetX, targetY).scale(focusScale));
+                }
+            }, [selectedNode]);
+
+            if (loading) return (
+                <div className="h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-800">
+                    <div className="w-16 h-16 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+                    <p className="font-black text-2xl tracking-widest animate-pulse uppercase text-slate-600">📡 數據處理中...</p>
+                </div>
+            );
+
+            if (error) return (
+                <div className="h-screen flex flex-col items-center justify-center bg-red-50 text-red-700 p-8 text-center">
+                    <h1 className="text-3xl font-black mb-4">⚠️ 系統防禦性中斷</h1>
+                    <p className="bg-white p-5 border border-red-200 rounded-3xl max-w-2xl font-mono text-base shadow-sm leading-relaxed">{error}</p>
+                    <p className="mt-5 text-slate-500 text-sm font-semibold">請檢查試算表欄位拼字，或重新發布「新版本」部署。</p>
+                </div>
+            );
+
+            return (
+                <div className="flex h-screen w-full relative overflow-hidden bg-slate-50">
+                    {/* 左側戰略折疊風琴式面板 (明亮磨砂大字卡片) */}
+                    <div className={`transition-all-custom glass-sidebar p-7 z-20 flex flex-col shadow-xl overflow-y-auto absolute h-full ${isSidebarOpen ? 'translate-x-0 w-[420px]' : '-translate-x-full w-[420px]'}`}>
+                        <div className="mb-6">
+                            <h1 className="text-2xl font-black text-slate-800 leading-tight">一般大學<br/><span className="text-rose-600 text-3xl font-black tracking-tighter">跨域課程資源地圖</span></h1>
+                            <div className="h-1.5 w-14 bg-rose-500 mt-4 rounded-full"></div>
+                            <p className="text-[11px] text-slate-400 font-bold mt-1.5 uppercase tracking-[0.3em]">Operational Module OS v6.2</p>
+                        </div>
+                        
+                        {/* 摺疊手風琴導航區 */}
+                        <div className="space-y-4 mb-6">
+                            {phases.map((p, idx) => {
+                                const isOpen = activePhase === p.id;
+                                const strat = phaseStrategy[p.id];
+                                return (
+                                    <div key={idx} className="rounded-[22px] overflow-hidden glass-card transition-all-custom shadow-sm border border-slate-100">
+                                        <button 
+                                            onClick={() => setActivePhase(isOpen ? null : p.id)}
+                                            className={`w-full p-4.5 flex justify-between items-center transition-all ${isOpen ? 'bg-rose-600 text-white shadow-md' : 'bg-white/70 text-slate-700 hover:bg-white/95'}`}
+                                        >
+                                            <div className="text-left">
+                                                <span className={`text-[10px] font-black uppercase tracking-wider block ${isOpen ? 'text-white/70' : 'text-slate-400'}`}>PHASE 0{idx+1}</span>
+                                                <span className="text-[15px] font-extrabold">{p.title}</span>
+                                            </div>
+                                            <span>
+                                                {isOpen ? (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                                )}
+                                            </span>
+                                        </button>
+                                        
+                                        {/* 手風琴滑出面板 */}
+                                        {isOpen && strat && (
+                                            <div className="p-5 bg-white border-t border-slate-100 space-y-5 text-sm animate-in slide-in-from-top-2 duration-300">
+                                                {/* 1. 執行步驟 */}
+                                                <div>
+                                                    <span className="text-[11px] text-rose-500 font-extrabold uppercase tracking-wider block mb-2.5">▼ 關鍵執行步驟</span>
+                                                    <ol className="space-y-2.5 list-decimal list-inside text-slate-700 leading-relaxed pl-1 text-[13.5px]">
+                                                        {strat.steps.map((step, sIdx) => (
+                                                            <li key={sIdx} className="pl-1 text-slate-700 font-medium">{step}</li>
+                                                        ))}
+                                                    </ol>
+                                                </div>
+                                                
+                                                {/* 2. 核心關聯節點 */}
+                                                <div className="pt-3 border-t border-slate-100">
+                                                    <span className="text-[11px] text-emerald-600 font-extrabold uppercase tracking-wider block mb-2.5">● 核心關聯節點 (點擊圖譜對焦)</span>
+                                                    <div className="flex flex-wrap gap-2 pl-1">
+                                                        {data.nodes
+                                                            .filter(n => n.group === p.id && n.source !== '系統定義')
+                                                            .map((n, nIdx) => (
+                                                                <span 
+                                                                    key={nIdx} 
+                                                                    onClick={(e) => { e.stopPropagation(); setSelectedNode(n); }}
+                                                                    className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1 rounded-lg text-[12px] border border-slate-200/50 font-bold cursor-pointer transition-colors shadow-sm block"
+                                                                >
+                                                                    {n.id}
+                                                                </span>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* 3. VRIO 戰略建議 */}
+                                                <div className="pt-3 border-t border-slate-100">
+                                                    <span className="text-[11px] text-blue-600 font-extrabold uppercase tracking-wider block mb-2">⚡ VRIO 戰略核心建議</span>
+                                                    <p className="text-slate-700 leading-relaxed bg-blue-50/80 border border-blue-100 p-3.5 rounded-2xl font-semibold text-[13px] italic">
+                                                        "{strat.suggestions}"
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* 數據統計資訊 */}
+                        <div className="mb-6">
+                            <div className="p-4.5 bg-white rounded-[20px] border border-slate-100 shadow-sm flex items-center justify-between">
+                                <h3 className="text-[12px] font-black text-slate-400 uppercase tracking-widest">當前數據節點量</h3>
+                                <p className="text-3xl font-black text-slate-800">
+                                    {data?.nodes.filter(n => n.source !== '系統定義').length} 
+                                    <span className="text-sm text-slate-400 uppercase ml-1 font-bold">Units</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* 節點詳情卡片 */}
+                        {selectedNode ? (
+                            <div className="mt-auto p-5.5 bg-white border border-slate-200 shadow-xl rounded-[28px] animate-in fade-in slide-in-from-bottom-6">
+                                <h2 className="text-xl font-black text-slate-800 leading-snug tracking-tight">{selectedNode.id}</h2>
+                                <div className="flex gap-2 mt-2.5">
+                                    <span className="text-[10px] bg-rose-600 text-white px-3 py-1 rounded-full font-black uppercase">
+                                        {selectedNode.group.split(':')[0]}
+                                    </span>
+                                    <span className="text-[10px] bg-blue-600 text-white px-3 py-1 rounded-full font-black uppercase">
+                                        比重.{selectedNode.importance}
+                                    </span>
+                                </div>
+                                <div className="mt-4 p-4.5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <p className="text-[13.5px] text-slate-700 leading-relaxed font-bold">
+                                        "{selectedNode.desc}"
+                                    </p>
+                                </div>
+                                <div className="mt-4 flex items-center justify-between text-[11px] text-slate-400">
+                                    <span className="font-bold">分類：{selectedNode.source}</span>
+                                    <button onClick={() => setSelectedNode(null)} className="text-rose-600 hover:underline font-extrabold">清除選擇</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mt-auto p-6 border-2 border-dashed border-slate-200 rounded-[28px] text-center bg-white/40">
+                                <p className="text-sm text-slate-400 font-bold leading-relaxed">
+                                    💡 點擊上方階段展開「步驟與建議」<br/>或點選圖譜圓球、關聯節點查看細部說明
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 收合按鈕 (浮動明亮粉紅卡片) */}
+                    <button 
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className={`transition-all-custom fixed top-8 z-30 p-3 bg-rose-600 text-white rounded-full shadow-lg hover:bg-rose-500 ${isSidebarOpen ? 'left-[395px]' : 'left-8'}`}
+                    >
+                        {isSidebarOpen ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                        )}
+                    </button>
+
+                    {/* 圖譜渲染畫布 */}
+                    <div className="flex-1 relative cursor-crosshair bg-slate-50" onClick={() => setSelectedNode(null)}>
+                        <svg ref={svgRef} className="w-full h-full" />
+                        
+                        {/* 靜態右下角圖例 */}
+                        <div className="absolute bottom-6 right-6 flex flex-col gap-2 p-4 bg-white/90 backdrop-blur rounded-2xl border border-slate-200/80 text-[11px] font-bold text-slate-600 shadow-lg">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></div>
+                                <span>PHASE 01: 建立學程架構</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#059669]"></div>
+                                <span>PHASE 02: 產學技術對接</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#db2777]"></div>
+                                <span>PHASE 03: 文化內涵深耕</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#FFA500]"></div>
+                                <span>PHASE 04: 培育成果驗收</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
