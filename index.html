@@ -261,33 +261,123 @@
                 { id: 'PHASE 04: 培育成果驗收', title: '培育成果與合輯發行' }
             ];
 
-            useEffect(() => {
-                if (typeof google !== 'undefined' && google.script && google.script.run) {
-                    google.script.run
-                        .withSuccessHandler((res) => {
-                            try {
-                                const parsed = JSON.parse(res);
-                                if (parsed.error || !parsed.nodes || parsed.nodes.length === 0) {
-                                    setData(fallbackData);
-                                } else {
-                                    setData(parsed);
-                                }
-                            } catch (e) {
-                                setData(fallbackData);
+            // 嚴格落實一對一去識別化函數
+            const deIdentify = (text) => {
+                if (!text) return "";
+                return text.toString().trim()
+                    .replace(/\d{3}年度/g, "年度")
+                    .replace(/\d{3}年/g, "年度")
+                    .replace(/輔仁大學/g, "核心示範大學")
+                    .replace(/輔大/g, "示範大學")
+                    .replace(/原資中心/g, "中心樞紐")
+                    .replace(/"/g, "");
+            };
+
+            const groupToPhase = {
+                '[行政授權]': 'PHASE 01: 建立學程架構', '[行政瑣務]': 'PHASE 01: 建立學程架構',
+                '[核心主軸]': 'PHASE 02: 產學技術對接', '[技術指標]': 'PHASE 02: 產學技術對接',
+                '[產學對接]': 'PHASE 02: 產學技術對接', '[學習守護]': 'PHASE 02: 產學技術對接',
+                '[文化深耕]': 'PHASE 03: 文化內涵深耕', '[靈魂核心]': 'PHASE 03: 文化內涵深耕',
+                '[族語教學]': 'PHASE 03: 文化內涵深耕', '[部落連結]': 'PHASE 03: 文化內涵深耕',
+                '[社會資本]': 'PHASE 03: 文化內涵深耕', '[全民原教]': 'PHASE 03: 文化內涵深耕',
+                '[學生組織]': 'PHASE 04: 培育成果驗收', '[成果驗收]': 'PHASE 04: 培育成果驗收',
+                '[績效指標]': 'PHASE 04: 培育成果驗收', '[戰略輸出]': 'PHASE 04: 培育成果驗收'
+            };
+
+            const parseSheetData = (rows) => {
+                const nodes = [];
+                const links = [];
+                const nodeIds = new Set();
+                
+                const phaseList = ['PHASE 01: 建立學程架構', 'PHASE 02: 產學技術對接', 'PHASE 03: 文化內涵深耕', 'PHASE 04: 培育成果驗收'];
+                phaseList.forEach(p => {
+                    nodes.push({ id: p, group: p, importance: 5, desc: p + " 戰略核心", source: "系統定義" });
+                    nodeIds.add(p);
+                });
+
+                const rawData = rows.map(row => {
+                    const values = Array.isArray(row) ? row : Object.values(row);
+                    const cleanId = deIdentify(row['關鍵詞 (ID)'] || values[0]);
+                    if (!cleanId || nodeIds.has(cleanId)) return null;
+
+                    const groupLabel = (row['所屬分類 (Group)'] || values[1] || "").toString().trim();
+                    const phase = groupToPhase[groupLabel] || 'PHASE 01: 建立學程架構';
+
+                    const impVal = row['比重 (Importance)'] || values[2];
+                    const descVal = row['特性說明'] || values[3];
+                    const linksVal = row['鏈結關係建議 (Links)'] || values[4];
+
+                    nodeIds.add(cleanId);
+                    nodes.push({
+                        id: cleanId,
+                        group: phase,
+                        importance: parseInt(impVal) || 1,
+                        desc: deIdentify(descVal),
+                        source: groupLabel
+                    });
+
+                    return { id: cleanId, phase: phase, rawLinks: linksVal };
+                }).filter(d => d !== null);
+
+                rawData.forEach(item => {
+                    links.push({ source: item.phase, target: item.id, label: "歸屬" });
+                    if (item.rawLinks) {
+                        const targets = item.rawLinks.toString().split(',');
+                        targets.forEach(t => {
+                            const targetId = deIdentify(t.trim());
+                            if (targetId && nodeIds.has(targetId) && targetId !== item.id) {
+                                links.push({ source: item.id, target: targetId, label: "關聯" });
                             }
-                            setLoading(false);
-                        })
-                        .withFailureHandler((err) => {
+                        });
+                    }
+                });
+
+                return { nodes, links };
+            };
+
+            useEffect(() => {
+                // 直接向 Google 試算表拉取即時 CSV（免透過 GAS，支援 GitHub Pages 即時同步）
+                const sheetCsvUrl = 'https://docs.google.com/spreadsheets/d/17xgU7D08XMKytbgzDQx9-kxOC7eM59QqGklAGN4FTVM/gviz/tq?tqx=out:csv';
+                
+                d3.csv(sheetCsvUrl)
+                    .then(rows => {
+                        if (rows && rows.length > 0) {
+                            const parsed = parseSheetData(rows);
+                            if (parsed.nodes && parsed.nodes.length > 4) {
+                                setData(parsed);
+                                setLoading(false);
+                                return;
+                            }
+                        }
+                        throw new Error("試算表資料為空");
+                    })
+                    .catch(err => {
+                        console.warn("直接載入試算表失敗，使用備用展示資料:", err);
+                        if (typeof google !== 'undefined' && google.script && google.script.run) {
+                            google.script.run
+                                .withSuccessHandler((res) => {
+                                    try {
+                                        const parsed = JSON.parse(res);
+                                        if (parsed.error || !parsed.nodes || parsed.nodes.length === 0) {
+                                            setData(fallbackData);
+                                        } else {
+                                            setData(parsed);
+                                        }
+                                    } catch (e) {
+                                        setData(fallbackData);
+                                    }
+                                    setLoading(false);
+                                })
+                                .withFailureHandler(() => {
+                                    setData(fallbackData);
+                                    setLoading(false);
+                                })
+                                .getSpreadsheetData();
+                        } else {
                             setData(fallbackData);
                             setLoading(false);
-                        })
-                        .getSpreadsheetData();
-                } else {
-                    setTimeout(() => {
-                        setData(fallbackData);
-                        setLoading(false);
-                    }, 500);
-                }
+                        }
+                    });
             }, []);
 
             // ==========================================
