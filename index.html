@@ -58,6 +58,23 @@
         .transition-all-custom { 
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
         }
+        /* 列印模式最佳化 */
+        @media print {
+            body * { visibility: hidden; }
+            #report-modal-content, #report-modal-content * { visibility: visible; }
+            #report-modal-content { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                max-height: none !important; 
+                overflow: visible !important; 
+                box-shadow: none !important; 
+                border: none !important; 
+            }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -73,6 +90,7 @@
             const [selectedNode, setSelectedNode] = useState(null);
             const [activePhase, setActivePhase] = useState(null);
             const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+            const [showReportModal, setShowReportModal] = useState(false);
             
             const svgRef = useRef(null);
             
@@ -598,6 +616,286 @@
                 }
             }, [selectedNode]);
 
+            // ==========================================
+            // 📄 白話版策略診斷報告分析與 Word 匯出邏輯
+            // ==========================================
+            const generateReportDetails = (inputData) => {
+                if (!inputData || !inputData.nodes) return null;
+                const userNodes = inputData.nodes.filter(n => n.source !== '系統定義');
+                const totalNodes = userNodes.length;
+                if (totalNodes === 0) return null;
+
+                const phaseNames = [
+                    'PHASE 01: 建立學程架構',
+                    'PHASE 02: 產學技術對接',
+                    'PHASE 03: 文化內涵深耕',
+                    'PHASE 04: 培育成果驗收'
+                ];
+
+                const phaseStats = phaseNames.map((p, idx) => {
+                    const nodes = userNodes.filter(n => n.group === p);
+                    const count = nodes.length;
+                    const score = nodes.reduce((sum, n) => sum + (n.importance || 1), 0);
+                    return {
+                        phase: p,
+                        phaseIdx: idx + 1,
+                        title: p.split(':')[1]?.trim() || p,
+                        count,
+                        score,
+                        nodes
+                    };
+                });
+
+                const totalScore = phaseStats.reduce((sum, p) => sum + p.score, 0) || 1;
+                phaseStats.forEach(p => {
+                    p.ratio = Math.round((p.score / totalScore) * 100);
+                });
+
+                // 核心優勢 (比重 4~5)
+                const topAssets = userNodes.filter(n => n.importance >= 4).sort((a,b) => b.importance - a.importance);
+
+                // 判定當前成熟度階段
+                let currentStage = phaseStats[0];
+                let stageReason = '';
+
+                const p4High = phaseStats[3].nodes.filter(n => n.importance >= 4).length;
+                const p3High = phaseStats[2].nodes.filter(n => n.importance >= 4).length;
+                const p2High = phaseStats[1].nodes.filter(n => n.importance >= 4).length;
+
+                if (phaseStats[3].ratio >= 25 && p4High >= 2) {
+                    currentStage = phaseStats[3];
+                    stageReason = '貴校在「培育成果驗收」已有成熟的原創代表作產出、影像產製與跨校發表，且具備校務 IR 追蹤成效，已進入第四階段成熟典範期。';
+                } else if (phaseStats[2].ratio >= 25 && p3High >= 2) {
+                    currentStage = phaseStats[2];
+                    stageReason = '貴校在「文化內涵深耕」累積了扎實的部落田野、古調採集與傳統實踐，文化認同護城河鮮明，正處於第三階段文化深耕期。';
+                } else if (phaseStats[1].ratio >= 25 || p2High >= 2) {
+                    currentStage = phaseStats[1];
+                    stageReason = '貴校已具備充足的百萬級專業場域、數位混音與業界金曲大師協同能量，技術賦能成效顯著，正處於第二階段產學技術深化期。';
+                } else {
+                    currentStage = phaseStats[0];
+                    stageReason = '貴校過去三年的重心主要在校級行政規章核備、開通跨院選課通道與品牌識別建立，屬於打底扎根階段，正處於第一階段學程架構奠基期。';
+                }
+
+                // 基礎維持與動員 (比重 1~2)
+                const lowWeightNodes = userNodes.filter(n => n.importance <= 2);
+                const lowWeightRatio = Math.round((lowWeightNodes.length / totalNodes) * 100);
+
+                // 弱點分析
+                const weaknesses = [];
+                if (lowWeightRatio > 35) {
+                    weaknesses.push({
+                        title: `行政維持成本偏高（比重 1~2 佔 ${lowWeightRatio}%）`,
+                        desc: `全校共有 ${lowWeightNodes.length} 項屬於報帳核銷、行政瑣務或基礎福利項目。這顯示專案執行團隊承擔較繁重的事務性工作，可能壓縮了投入在核心跨域教學與高階創作的精力。`
+                    });
+                }
+                if (phaseStats[3].count < 3 || p4High === 0) {
+                    weaknesses.push({
+                        title: '第四階段成果驗收指標尚待擴充',
+                        desc: '目前在成果驗收階段（如數位串流合輯、專業 MV、公開巡演、校務 IR 長期就業追蹤）之項目偏少，容易使外部評鑑不易看見多年培育的指標性代表成果。'
+                    });
+                }
+                if (phaseStats[2].count < 3 || p3High === 0) {
+                    weaknesses.push({
+                        title: '文化深耕與部落原生連結仍有深化空間',
+                        desc: '若技術操作比例過高而文化採集與族語沉浸比例偏低，容易使學程流於一般商業製作，缺乏原住民族文化的不可替代性與精神深度。'
+                    });
+                }
+                if (weaknesses.length === 0) {
+                    weaknesses.push({
+                        title: '跨階段橫向連鎖鏈結仍可持續加密',
+                        desc: '部分節點仍屬單點執行，建議進一步將行政授權、大師技術、文化田調與成果驗收四者形成閉環聯動，讓每一項資源都能發揮連鎖效益。'
+                    });
+                }
+
+                // 建議方針
+                const recommendations = [
+                    {
+                        title: '方針一：聚焦核心資產，逐步精簡或制度化日常行政瑣務',
+                        desc: '將常態性公文核銷與場地設備盤點等低策略比重工作建立 SOP 或標準作業流程，釋放教師與專任助理的時間，全力投入高比重（4~5）的產學工作坊與成果孵化。'
+                    },
+                    {
+                        title: '方針二：全面落實「個人作品集（Portfolio）」產出導向機制',
+                        desc: '鼓勵每位修課學員在結業前完成至少一項具備部落文化底蘊的原創作品、成果紀錄或專題展演，以此作為具體的職涯履歷，直接對接文化傳播產業與就業市場。'
+                    },
+                    {
+                        title: '方針三：落實部落知情同意（SOP），厚植無形文化資產護城河',
+                        desc: '帶領學生深入原鄉進行古調傳唱與自然音景採集前，建立嚴謹的部落倫理與授權機制，確保採集成果兼顧部落文化傳承與當代數位轉譯的合法合規性。'
+                    },
+                    {
+                        title: '方針四：對接校級 IR 校務大數據，將活動人次提升為精準數據治理',
+                        desc: '不僅記錄活動參與人次，更要串接教務處數據，追蹤修課學生在學業預警改善率、跨領域雙主修比例及畢業後文化就業率，向主管機關與校方展現卓越辦學成效。'
+                    }
+                ];
+
+                return {
+                    totalNodes,
+                    phaseStats,
+                    currentStage,
+                    stageReason,
+                    topAssets,
+                    lowWeightRatio,
+                    weaknesses,
+                    recommendations,
+                    userNodes
+                };
+            };
+
+            const handleDownloadWord = () => {
+                const report = generateReportDetails(data);
+                if (!report) return;
+
+                const todayStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                let tableRowsHtml = report.phaseStats.map(p => `
+                    <tr>
+                        <td style="font-weight:bold; background-color:#f8fafc; padding:8px 10px; border:1px solid #94a3b8;">${p.phase}</td>
+                        <td style="text-align:center; padding:8px 10px; border:1px solid #94a3b8;">${p.count} 個</td>
+                        <td style="text-align:center; padding:8px 10px; border:1px solid #94a3b8;">${p.score} 分</td>
+                        <td style="text-align:center; font-weight:bold; color:#2563eb; padding:8px 10px; border:1px solid #94a3b8;">${p.ratio}%</td>
+                        <td style="padding:8px 10px; border:1px solid #94a3b8;">${p.ratio >= 25 ? '● 重點推進領域' : '○ 基礎推動中'}</td>
+                    </tr>
+                `).join('');
+
+                let topAssetsHtml = report.topAssets.map(a => `
+                    <tr>
+                        <td style="font-weight:bold; padding:8px 10px; border:1px solid #94a3b8;">${a.id}</td>
+                        <td style="padding:8px 10px; border:1px solid #94a3b8;">${a.group.split(':')[0]}</td>
+                        <td style="text-align:center; font-weight:bold; color:#b91c1c; padding:8px 10px; border:1px solid #94a3b8;">比重 ${a.importance}</td>
+                        <td style="padding:8px 10px; border:1px solid #94a3b8;">${a.desc || '無特定說明'}</td>
+                    </tr>
+                `).join('');
+
+                let weaknessesHtml = report.weaknesses.map(w => `
+                    <div style="background:#fff1f2; border-left:4px solid #e11d48; padding:12px; margin-bottom:12px; border-radius:4px;">
+                        <p style="margin:0; font-weight:bold; color:#9f1239; font-size:11pt;">⚠️ ${w.title}</p>
+                        <p style="margin:5px 0 0 0; color:#4c0519; font-size:10.5pt; line-height:1.6;">${w.desc}</p>
+                    </div>
+                `).join('');
+
+                let recommendationsHtml = report.recommendations.map((r, i) => `
+                    <div style="background:#f0fdf4; border-left:4px solid #16a34a; padding:12px; margin-bottom:12px; border-radius:4px;">
+                        <p style="margin:0; font-weight:bold; color:#166534; font-size:11.5pt;">🎯 ${r.title}</p>
+                        <p style="margin:6px 0 0 0; color:#14532d; font-size:10.5pt; line-height:1.6;">${r.desc}</p>
+                    </div>
+                `).join('');
+
+                let allNodesHtml = report.userNodes.map((n, idx) => `
+                    <tr>
+                        <td style="text-align:center; padding:6px 8px; border:1px solid #94a3b8;">${idx + 1}</td>
+                        <td style="font-weight:bold; padding:6px 8px; border:1px solid #94a3b8;">${n.id}</td>
+                        <td style="padding:6px 8px; border:1px solid #94a3b8;">${n.source || n.group.split(':')[0]}</td>
+                        <td style="text-align:center; font-weight:bold; padding:6px 8px; border:1px solid #94a3b8;">${n.importance}</td>
+                        <td style="padding:6px 8px; border:1px solid #94a3b8;">${n.desc || ''}</td>
+                    </tr>
+                `).join('');
+
+                const htmlContent = `
+                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head>
+                        <meta charset='utf-8'>
+                        <title>一般大學跨域課程模組策略診斷報告</title>
+                        <style>
+                            body { font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif; line-height: 1.6; color: #1e293b; padding: 30px; }
+                            h1 { color: #1e3a8a; text-align: center; font-size: 22pt; margin-bottom: 6px; }
+                            .subtitle { text-align: center; color: #64748b; font-size: 11pt; margin-bottom: 30px; }
+                            h2 { color: #b91c1c; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 15pt; margin-top: 30px; }
+                            h3 { color: #1e40af; font-size: 12pt; margin-top: 15px; }
+                            p, li { font-size: 10.5pt; line-height: 1.7; }
+                            .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 15px 0; }
+                            .stage-badge { display: inline-block; background: #be123c; color: white; padding: 6px 14px; font-weight: bold; border-radius: 6px; font-size: 12pt; }
+                            table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+                            th { background-color: #e2e8f0; font-weight: bold; padding: 8px 10px; border: 1px solid #94a3b8; font-size: 10pt; }
+                            .footer { text-align: center; color: #94a3b8; font-size: 9pt; margin-top: 50px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>一般大學跨域課程模組 · 白話版策略診斷報告</h1>
+                        <div class="subtitle">Operational Module OS 拓撲分析引擎自動生成 · 評估日期：${todayStr}</div>
+
+                        <h2>一、貴校目前處於哪一個發展階段？（成熟度落點診斷）</h2>
+                        <div class="card" style="background:#eff6ff; border-left:6px solid #2563eb;">
+                            <p style="margin:0 0 10px 0;"><span class="stage-badge">${report.currentStage.phase}</span></p>
+                            <p style="font-size:12pt; font-weight:bold; color:#1e40af; margin:0 0 8px 0;">【白話落點判定】</p>
+                            <p style="font-size:11pt; color:#1e293b; margin:0; line-height:1.8;">${report.stageReason}</p>
+                        </div>
+                        
+                        <h3>📊 四大推進階段分佈與加權比重統計：</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>策略推進階段</th>
+                                    <th style="text-align:center;">節點總數</th>
+                                    <th style="text-align:center;">權重總分</th>
+                                    <th style="text-align:center;">權重佔比</th>
+                                    <th>推動現況說明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRowsHtml}
+                            </tbody>
+                        </table>
+
+                        <h2>二、貴校現況核心優勢分析（長處在哪裡？）</h2>
+                        <p>透過三年成果報告所萃取的節點中，貴校共有 <strong>${report.topAssets.length} 項高權重核心資產（比重 4~5）</strong>。這些是貴校最不可被輕易取代的競爭優勢與核心護城河：</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:25%;">核心優勢項目 (Node ID)</th>
+                                    <th style="width:20%;">所屬分類</th>
+                                    <th style="text-align:center; width:15%;">策略比重</th>
+                                    <th>特性說明與競爭價值</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${topAssetsHtml}
+                            </tbody>
+                        </table>
+
+                        <h2>三、面臨痛點與待改善之處（劣勢／瓶頸在哪裡？）</h2>
+                        <p>客觀檢視貴校現有資源拓撲結構，若要邁向下一階梯，建議關注以下幾項關鍵短板：</p>
+                        ${weaknessesHtml}
+
+                        <h2>四、具體建議方針與下一步突破路徑</h2>
+                        <p>依據當前發展階段與資源配置，建議貴校在未來的計畫執行中聚焦以下四大策略方針：</p>
+                        ${recommendationsHtml}
+
+                        <br/>
+                        <hr style="border:0; border-top:1px dashed #cbd5e1; margin:30px 0;"/>
+
+                        <h2>五、附錄：全校跨域課程模組節點清單總覽（共 ${report.userNodes.length} 筆）</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:8%; text-align:center;">序號</th>
+                                    <th style="width:30%;">關鍵詞 (ID)</th>
+                                    <th style="width:20%;">所屬分類</th>
+                                    <th style="width:12%; text-align:center;">比重</th>
+                                    <th>特性說明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${allNodesHtml}
+                            </tbody>
+                        </table>
+
+                        <div class="footer">本報告由「一般大學跨域課程模組資源地圖 (GenUni)」自動產製 · 供校內主管決策與計畫撰寫參考</div>
+                    </body>
+                    </html>
+                `;
+
+                const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `一般大學跨域課程模組_白話策略診斷報告_${new Date().toISOString().slice(0,10)}.doc`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            };
+
+            const reportData = data ? generateReportDetails(data) : null;
+
             if (loading) return (
                 <div className="h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-800">
                     <div className="w-16 h-16 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-6"></div>
@@ -621,6 +919,19 @@
                             <h1 className="text-2xl font-black text-slate-800 leading-tight">一般大學<br/><span className="text-rose-600 text-3xl font-black tracking-tighter">跨域課程資源地圖</span></h1>
                             <div className="h-1.5 w-14 bg-rose-500 mt-4 rounded-full"></div>
                             <p className="text-[11px] text-slate-400 font-bold mt-1.5 uppercase tracking-[0.3em]">Operational Module OS v6.2</p>
+                        </div>
+                        
+                        {/* 📄 白話版策略診斷報告與 Word 下載按鈕 */}
+                        <div className="mb-6">
+                            <button 
+                                onClick={() => setShowReportModal(true)}
+                                className="w-full py-3.5 px-4 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white rounded-2xl shadow-md hover:shadow-xl flex items-center justify-center gap-2.5 font-black text-[13.5px] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>閱讀白話策略報告 / 下載 Word</span>
+                            </button>
                         </div>
                         
                         {/* 摺疊手風琴導航區 */}
@@ -771,6 +1082,166 @@
                             </div>
                         </div>
                     </div>
+
+                    {/* 📄 白話版策略診斷報告彈出視窗 (Modal) */}
+                    {showReportModal && reportData && (
+                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-3 md:p-8 animate-in fade-in duration-200">
+                            <div id="report-modal-content" className="bg-white w-full max-w-4xl max-h-[92vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-slate-100">
+                                
+                                {/* Modal 頂部控制列 */}
+                                <div className="p-5 md:px-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 no-print">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2.5 bg-rose-100 text-rose-600 rounded-2xl shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-black text-slate-800">全校跨域課程模組 · 白話版策略診斷報告</h2>
+                                            <p className="text-xs text-slate-400 font-bold mt-0.5">系統依據即時節點與比重自動運算生成 · 供校內主管與同仁直接閱讀</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={handleDownloadWord}
+                                            className="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs flex items-center gap-1.5 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                            下載 Word 檔 (.doc)
+                                        </button>
+                                        <button 
+                                            onClick={() => window.print()}
+                                            className="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center gap-1 transition-all"
+                                        >
+                                            🖨️ 列印
+                                        </button>
+                                        <button 
+                                            onClick={() => setShowReportModal(false)}
+                                            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all font-bold text-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Modal 主要內容滾動區 */}
+                                <div className="p-6 md:p-8 overflow-y-auto space-y-8 text-slate-700">
+                                    
+                                    {/* 第一章：當前發展階段與位階落點 */}
+                                    <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 p-6 rounded-3xl border border-blue-100/80 shadow-sm">
+                                        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                            <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-100/80 px-3 py-1 rounded-full">一、當前成熟度落點判定</span>
+                                            <span className="text-xs font-bold text-slate-400">評估日期：{new Date().toLocaleDateString('zh-TW')}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <span className="text-2xl font-black text-rose-600">
+                                                {reportData.currentStage.phase}
+                                            </span>
+                                        </div>
+                                        <p className="text-[14.5px] font-bold text-slate-800 leading-relaxed bg-white/80 p-4.5 rounded-2xl border border-blue-100 shadow-sm">
+                                            💡 {reportData.stageReason}
+                                        </p>
+                                    </div>
+
+                                    {/* 四大階段指標統計表 */}
+                                    <div>
+                                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-3">📊 四大策略推進階段指標分佈</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                            {reportData.phaseStats.map((p, idx) => (
+                                                <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">PHASE 0{idx+1}</span>
+                                                    <span className="text-xs font-black text-slate-800 block mt-0.5">{p.title}</span>
+                                                    <div className="mt-2.5 flex items-baseline justify-between">
+                                                        <span className="text-2xl font-black text-slate-800">{p.count} <span className="text-xs font-bold text-slate-400">項目</span></span>
+                                                        <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{p.ratio}% 權重</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 第二章：核心優勢分析 */}
+                                    <div>
+                                        <h3 className="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
+                                            <span className="text-emerald-500">🌟</span> 二、貴校現況核心優勢（長處在哪裡？）
+                                        </h3>
+                                        <p className="text-xs text-slate-500 font-semibold mb-4">
+                                            全校共有 <strong>{reportData.topAssets.length} 項高權重核心資產（比重 4~5）</strong>，這是貴校歷年積累最深厚、不可輕易被複製的護城河：
+                                        </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {reportData.topAssets.map((a, idx) => (
+                                                <div key={idx} className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl">
+                                                    <div className="flex items-center justify-between mb-1.5">
+                                                        <span className="font-black text-[14px] text-slate-800">{a.id}</span>
+                                                        <span className="text-[10px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">比重 {a.importance}</span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-600 leading-relaxed font-medium">"{a.desc || '核心優勢項目'}"</p>
+                                                    <span className="text-[10px] font-bold text-slate-400 mt-2 block">分類：{a.source || a.group.split(':')[0]}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 第三章：面臨痛點與短板 */}
+                                    <div>
+                                        <h3 className="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
+                                            <span className="text-rose-500">⚠️</span> 三、面臨痛點與待改善之處（劣勢／瓶頸在哪裡？）
+                                        </h3>
+                                        <p className="text-xs text-slate-500 font-semibold mb-3">
+                                            依據現有網絡拓撲結構，若要邁向下一個成熟位階，建議檢視以下短板：
+                                        </p>
+                                        <div className="space-y-3">
+                                            {reportData.weaknesses.map((w, idx) => (
+                                                <div key={idx} className="p-4 bg-rose-50/70 border border-rose-100 rounded-2xl">
+                                                    <h4 className="font-extrabold text-sm text-rose-800">{w.title}</h4>
+                                                    <p className="text-xs text-rose-700/90 font-medium mt-1 leading-relaxed">{w.desc}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 第四章：具體建議方針 */}
+                                    <div>
+                                        <h3 className="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
+                                            <span className="text-blue-500">🎯</span> 四、具體建議方針與下一步突破路徑
+                                        </h3>
+                                        <p className="text-xs text-slate-500 font-semibold mb-3">
+                                            為協助貴校持續升級並發揮最大培育影響力，建議優先推動以下四大方針：
+                                        </p>
+                                        <div className="space-y-3">
+                                            {reportData.recommendations.map((r, idx) => (
+                                                <div key={idx} className="p-4.5 bg-blue-50/50 border border-blue-100 rounded-2xl">
+                                                    <h4 className="font-extrabold text-sm text-blue-900">{r.title}</h4>
+                                                    <p className="text-xs text-slate-700 font-medium mt-1.5 leading-relaxed">{r.desc}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Modal 底部操作按鈕 */}
+                                <div className="p-4 px-8 border-t border-slate-100 bg-slate-50 flex items-center justify-between no-print">
+                                    <span className="text-xs text-slate-400 font-bold">全校節點總計：{reportData.totalNodes} 筆</span>
+                                    <div className="flex gap-2.5">
+                                        <button 
+                                            onClick={() => setShowReportModal(false)}
+                                            className="py-2.5 px-4 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl font-bold text-xs transition-all"
+                                        >
+                                            關閉預覽
+                                        </button>
+                                        <button 
+                                            onClick={handleDownloadWord}
+                                            className="py-2.5 px-5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs shadow-md transition-all flex items-center gap-1.5"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                            下載完整 Word 報告 (.doc)
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
