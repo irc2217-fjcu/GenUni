@@ -51,9 +51,9 @@ AI 將依據節點分佈與比重加權，客觀判定貴校當前所處的策�
 
 #### 📋 複製給 Gemini / ChatGPT 的專用提示詞範本（Prompt Template）
 
-> 💡 **使用方式**：
-> 1. 打開 **Gemini**（推薦直接上傳 3 年份 PDF/Word 報告）或 **ChatGPT**。
-> 2. 複製以下整段提示詞並填入貴校基本資訊，連同成果報告一起送出：
+> 💡 **快速取得方式**：
+> - 📄 **[點此直接開啟 / 下載完整提示詞檔案 (prompt.txt)](prompt.txt)**（推薦！純文字檔一鍵複製，避免格式跑掉）
+> - 或直接複製下方 Markdown 程式碼區塊內容：
 
 ````markdown
 你是一位高等教育原住民族跨領域課程模組與資源拓撲分析專家。
@@ -192,6 +192,7 @@ AI 將依據節點分佈與比重加權，客觀判定貴校當前所處的策�
 ```plaintext
 GenUni/
 ├── index.html       # 前端 SPA 主程式 (React 18 + D3.js + Tailwind CSS)
+├── prompt.txt       # AI 成果報告萃取與成熟度診斷專用提示詞 (純文字檔，方便下載與一鍵複製)
 ├── Code.gs          # Google Apps Script 備用後端腳本 (試算表讀取與 API)
 └── README.md        # 系統說明與使用維護手冊
 ```
