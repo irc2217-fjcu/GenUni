@@ -103,7 +103,7 @@
             const linkSelectionRef = useRef(null);
             const linkLabelSelectionRef = useRef(null);
 
-            // 四大階段之關鍵步驟與 VRIO 戰略建議 (提升字體與資訊寬度)
+            // 四大階段之關鍵步驟與 VRIO 策略建議 (提升字體與資訊寬度)
             const phaseStrategy = {
                 'PHASE 01: 建立學程架構': {
                     title: '建立學分學程架構',
@@ -157,9 +157,9 @@
                     { id: "學程 Logo 設計與推廣", group: "PHASE 01: 建立學程架構", importance: 2, desc: "視覺符號資產。學程專屬 brand Logo 與整體視覺識別，用於成果發表、合輯、自媒體包裝中。", source: "[技術指標]" },
                     { id: "招生說明會辦理", group: "PHASE 01: 建立學程架構", importance: 2, desc: "情感動員。期初於校內及夥伴學校舉辦招生宣傳，藉由實體互動吸引跨院系隱性學員。", source: "[學生組織]" },
                     { id: "專家諮詢委員會", group: "PHASE 01: 建立學程架構", importance: 3, desc: "治理監督。聘任校外原民政策長老與產業界大師，監督學程經費流向與資源配置之正確性。", source: "[行政授權]" },
-                    { id: "跨領域產業學程", group: "PHASE 01: 建立學程架構", importance: 5, desc: "頂層戰略資產。正式核准的校級「跨領域流行音樂學分學程」，打通藝術、傳播、民研等學院高牆。", source: "[核心主軸]" },
+                    { id: "跨領域產業學程", group: "PHASE 01: 建立學程架構", importance: 5, desc: "頂層策略資產。正式核准的校級「跨領域流行音樂學分學程」，打通藝術、傳播、民研等學院高牆。", source: "[核心主軸]" },
                     { id: "畢業證書核發機制", group: "PHASE 01: 建立學程架構", importance: 2, desc: "程序資產。配合教務處制定的學程修業期滿與專屬結業證書發放標準，增加學員投入動因。", source: "[行政授權]" },
-                    { id: "行政庶務核銷", group: "PHASE 01: 建立學程架構", importance: 1, desc: "維持成本。活動基本餐飲支出，零戰略價值但為行政流程與出席率凝聚的最低限度保障。", source: "[行政瑣務]" },
+                    { id: "行政庶務核銷", group: "PHASE 01: 建立學程架構", importance: 1, desc: "維持成本。活動基本餐飲支出，零策略價值但為行政流程與出席率凝聚的最低限度保障。", source: "[行政瑣務]" },
                     { id: "專職輔導員薪資核算", group: "PHASE 01: 建立學程架構", importance: 1, desc: "維持成本。教育部或校級人事編制薪資報帳，屬剛性勞務。維持中樞日常關懷量能的行政保障。", source: "[行政授權]" },
                     { id: "成果報告與核銷彙整", group: "PHASE 01: 建立學程架構", importance: 1, desc: "績效產出成本。年底、期中向政府機關與校方核銷核備的文書彙整，屬於無法避免的行政義務。", source: "[行政授權]" },
                     { id: "公務網站信箱收發管理", group: "PHASE 01: 建立學程架構", importance: 1, desc: "資訊管道。中心日常文書收發、轉知、回報之基本營運流程，支撐系統基礎溝通。", source: "[行政瑣務]" },
@@ -172,7 +172,7 @@
                     { id: "產業實習機會媒合", group: "PHASE 02: 產學技術對接", importance: 4, desc: "三螺旋（市場對接）。與業界音樂製作室、傳播公司合作，提供高年級學員專屬的業界實習管道。", source: "[產學對接]" },
                     { id: "專業級錄混音設備", group: "PHASE 02: 產學技術對接", importance: 4, desc: "硬體資產。配合音樂系設備升級，引進頂級音訊介面、專業話筒、合成器與電子音樂錄製硬體。", source: "[技術指標]" },
                     { id: "工讀金與一般獎學金", group: "PHASE 02: 產學技術對接", importance: 2, desc: "基礎福利。提供原資中心工讀機會，舒緩學生經濟適應焦慮，也是引導參與高階培訓的基礎拉力。", source: "[核心主軸]" },
-                    { id: "設備維護與年度盤點", group: "PHASE 02: 產學技術對接", importance: 1, desc: "硬體管理。針對相機、筆電、音響等租賃或採購硬體進行年度盤點與報修，屬於低戰略價值但必須。", source: "[行政瑣務]" },
+                    { id: "設備維護與年度盤點", group: "PHASE 02: 產學技術對接", importance: 1, desc: "硬體管理。針對相機、筆電、音響等租賃或採購硬體進行年度盤點與報修，屬於低策略價值但必須。", source: "[行政瑣務]" },
                     { id: "自主創業孵化培育", group: "PHASE 02: 產學技術對接", importance: 4, desc: "三螺旋（高端）。輔導優秀合輯作品學生團隊參與教育部創業計畫，探索原民音樂變現的商業模式。", source: "[產學資源]" },
 
                     // PHASE 03
@@ -199,7 +199,7 @@
                     { id: "自治社團", group: "PHASE 04: 培育成果驗收", importance: 3, desc: "情感凝聚 CoP。校內原住民學生成長、集會之自治組織，提供新生的同儕輔導與校園倡議。", source: "[學生組織]" },
                     { id: "原民小畢典與成年禮", group: "PHASE 04: 培育成果驗收", importance: 3, desc: "儀式資本。每年辦理具傳統文化特色的小畢典，強化畢業學員與原資中心的深層社會連結。", source: "[成果驗收]" },
                     { id: "期中預警人工電訪", group: "PHASE 04: 培育成果驗收", importance: 2, desc: "被動式防守。由原資輔導專員人工篩選預警學籍名單並逐一電話訪談，屬於科學 IR 的人工前置作業。", source: "[核心主軸]" },
-                    { id: "全民原教知能研習", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "制度創新。針對全校行政與學術主管辦理文化敏感度培訓，消除校園中的潛在隱微歧視。", source: "[戰略輸出]" },
+                    { id: "全民原教知能研習", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "制度創新。針對全校行政與學術主管辦理文化敏感度培訓，消除校園中的潛在隱微歧視。", source: "[策略輸出]" },
                     { id: "跨校成果聯合巡演", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "規模經濟。帶動區域夥伴學校辦理巡迴展演，擴大計畫影響力，確立本校之「教練示範地位」。", source: "[成果驗收]" },
                     { id: "學生專業作品集製作", group: "PHASE 04: 培育成果驗收", importance: 4, desc: "人力資本。引導每位修課學員完成一首完整的混音作品 or MV，以此作品集對標市場就讀就業。", source: "[績效指標]" }
                 ],
@@ -299,7 +299,7 @@
                 '[族語教學]': 'PHASE 03: 文化內涵深耕', '[部落連結]': 'PHASE 03: 文化內涵深耕',
                 '[社會資本]': 'PHASE 03: 文化內涵深耕', '[全民原教]': 'PHASE 03: 文化內涵深耕',
                 '[學生組織]': 'PHASE 04: 培育成果驗收', '[成果驗收]': 'PHASE 04: 培育成果驗收',
-                '[績效指標]': 'PHASE 04: 培育成果驗收', '[戰略輸出]': 'PHASE 04: 培育成果驗收'
+                '[績效指標]': 'PHASE 04: 培育成果驗收', '[策略輸出]': 'PHASE 04: 培育成果驗收', '[戰略輸出]': 'PHASE 04: 培育成果驗收'
             };
 
             const parseSheetData = (rows) => {
@@ -309,7 +309,7 @@
                 
                 const phaseList = ['PHASE 01: 建立學程架構', 'PHASE 02: 產學技術對接', 'PHASE 03: 文化內涵深耕', 'PHASE 04: 培育成果驗收'];
                 phaseList.forEach(p => {
-                    nodes.push({ id: p, group: p, importance: 5, desc: p + " 戰略核心", source: "系統定義" });
+                    nodes.push({ id: p, group: p, importance: 5, desc: p + " 策略核心", source: "系統定義" });
                     nodeIds.add(p);
                 });
 
@@ -653,6 +653,7 @@
 
                 // 核心優勢 (比重 4~5)
                 const topAssets = userNodes.filter(n => n.importance >= 4).sort((a,b) => b.importance - a.importance);
+                const topAssetsRatio = Math.round((topAssets.length / totalNodes) * 100);
 
                 // 判定當前成熟度階段
                 let currentStage = phaseStats[0];
@@ -680,52 +681,141 @@
                 const lowWeightNodes = userNodes.filter(n => n.importance <= 2);
                 const lowWeightRatio = Math.round((lowWeightNodes.length / totalNodes) * 100);
 
-                // 弱點分析
+                // ==========================================
+                // 🧭 SWOT 分析模組建構
+                // ==========================================
+
+                // 1. S (Strengths 內部優勢)
+                const strengths = [
+                    {
+                        title: `高階核心專業資產深厚（比重 4~5 共 ${topAssets.length} 項，佔 ${topAssetsRatio}%）`,
+                        desc: `包含「${topAssets.slice(0, 3).map(a => a.id).join('」、「')}」等比重 4~5 之旗艦核心項目，具備深厚專業實作門檻與不可輕易被複製的教學特色。`,
+                        tag: '核心資產'
+                    },
+                    {
+                        title: `深耕「${currentStage.title}」特色鮮明（權重佔比 ${currentStage.ratio}%）`,
+                        desc: `全校在該階段投放了高達 ${currentStage.score} 分之策略權重與實質資源，展現清晰明確的發展重心與垂直整合動能。`,
+                        tag: '策略重心'
+                    },
+                    {
+                        title: '跨院整合與專業實踐場域運作健全',
+                        desc: '已成功打通學院間的開課選課壁壘，並具備可供師生長期沉浸式共學、大師協同與創作孵化的高階實踐場域。',
+                        tag: '組織協同'
+                    }
+                ];
+
+                // 2. W (Weaknesses 內部劣勢)
                 const weaknesses = [];
                 if (lowWeightRatio > 35) {
                     weaknesses.push({
                         title: `行政維持成本偏高（比重 1~2 佔 ${lowWeightRatio}%）`,
-                        desc: `全校共有 ${lowWeightNodes.length} 項屬於報帳核銷、行政瑣務或基礎福利項目。這顯示專案執行團隊承擔較繁重的事務性工作，可能壓縮了投入在核心跨域教學與高階創作的精力。`
+                        desc: `全校共有 ${lowWeightNodes.length} 項屬於報帳核銷、行政瑣務或日常維持項目，顯示行政與核銷雜務繁重，容易稀釋專任師資投入核心跨域教學與高階創作的時間精力。`,
+                        tag: '行政負荷'
                     });
                 }
                 if (phaseStats[3].count < 3 || p4High === 0) {
                     weaknesses.push({
-                        title: '第四階段成果驗收指標尚待擴充',
-                        desc: '目前在成果驗收階段（如數位串流合輯、專業 MV、公開巡演、校務 IR 長期就業追蹤）之項目偏少，容易使外部評鑑不易看見多年培育的指標性代表成果。'
+                        title: '成果驗收與能見度指標尚待擴充',
+                        desc: '第四階段（如數位串流合輯、專業 MV、公開巡演發表、校務 IR 長期就業追蹤）之高階項目偏少，外部評鑑與社會大眾不易直觀看見多年培育的指標性代表成果。',
+                        tag: '產出斷鏈'
                     });
                 }
                 if (phaseStats[2].count < 3 || p3High === 0) {
                     weaknesses.push({
                         title: '文化深耕與部落原生連結仍有深化空間',
-                        desc: '若技術操作比例過高而文化採集與族語沉浸比例偏低，容易使學程流於一般商業製作，缺乏原住民族文化的不可替代性與精神深度。'
+                        desc: '若技術操作比例過高而文化採集與族語沉浸比例偏低，容易使學程流於一般商業製作，缺乏原住民族文化的精神主體性與不可替代性。',
+                        tag: '文化主體'
                     });
                 }
                 if (weaknesses.length === 0) {
                     weaknesses.push({
                         title: '跨階段橫向連鎖鏈結仍可持續加密',
-                        desc: '部分節點仍屬單點執行，建議進一步將行政授權、大師技術、文化田調與成果驗收四者形成閉環聯動，讓每一項資源都能發揮連鎖效益。'
+                        desc: '部分節點仍屬單點執行，建議進一步將行政授權、大師技術、文化田調與成果驗收四者形成閉環聯動，讓每一項資源都能發揮加乘連鎖效益。',
+                        tag: '網絡協同'
                     });
                 }
 
-                // 建議方針
-                const recommendations = [
+                // 3. O (Opportunities 外部機會)
+                const opportunities = [
                     {
-                        title: '方針一：聚焦核心資產，逐步精簡或制度化日常行政瑣務',
-                        desc: '將常態性公文核銷與場地設備盤點等低策略比重工作建立 SOP 或標準作業流程，釋放教師與專任助理的時間，全力投入高比重（4~5）的產學工作坊與成果孵化。'
+                        title: '教育部 USR、高教深耕與全民原教政策紅利',
+                        desc: '教育部與原民會積極獎助原民高教深耕、文化沉浸與部落創生計畫，跨域學程極具爭取部會大型整合型專案與典範學校之利基。',
+                        tag: '政策支持'
                     },
                     {
-                        title: '方針二：全面落實「個人作品集（Portfolio）」產出導向機制',
-                        desc: '鼓勵每位修課學員在結業前完成至少一項具備部落文化底蘊的原創作品、成果紀錄或專題展演，以此作為具體的職涯履歷，直接對接文化傳播產業與就業市場。'
+                        title: '新媒體串流與原住民族文化 IP 數位內容需求爆發',
+                        desc: '國際串流平台與文策院（TAICCA）高度重視原生文化轉譯，具備族群深度與當代流行美學的作品在海內外市場具有極高市場辨識度。',
+                        tag: '市場商機'
                     },
                     {
-                        title: '方針三：落實部落知情同意（SOP），厚植無形文化資產護城河',
-                        desc: '帶領學生深入原鄉進行古調傳唱與自然音景採集前，建立嚴謹的部落倫理與授權機制，確保採集成果兼顧部落文化傳承與當代數位轉譯的合法合規性。'
-                    },
-                    {
-                        title: '方針四：對接校級 IR 校務大數據，將活動人次提升為精準數據治理',
-                        desc: '不僅記錄活動參與人次，更要串接教務處數據，追蹤修課學生在學業預警改善率、跨領域雙主修比例及畢業後文化就業率，向主管機關與校方展現卓越辦學成效。'
+                        title: '跨院新興科技與 AI 數位工具輔助賦能',
+                        desc: '結合數位影音技術、AI 輔助編曲與文化語料庫建置，可大幅縮短創作孵化週期，擴大學生作品傳播半徑。',
+                        tag: '科技賦能'
                     }
                 ];
+
+                // 4. T (Threats 外部威脅)
+                const threats = [
+                    {
+                        title: '全國少子化浪潮下生源競爭與跨域修課黏著度挑戰',
+                        desc: '大專校院生源逐年縮減，跨領域學程若未具備不可替代的職涯誘因，易面臨學生選課流失或修課半途而廢之風險。',
+                        tag: '生源競爭'
+                    },
+                    {
+                        title: '部落文化傳統智慧創作（原智權）與倫理授權爭議',
+                        desc: '進行古調採集與田野創作時，若未建立合規的部落知情同意機制（FPIC），可能引發文化挪用疑慮或著作權法律爭議。',
+                        tag: '智財倫理'
+                    },
+                    {
+                        title: '業界大師師資異動流失與外部競爭性經費變動風險',
+                        desc: '業界業師與專案助理流動性高，且高教補助經費多為競爭型計畫，若無校級制度性常態預算支持，計畫期滿後恐面臨資源斷鏈。',
+                        tag: '資源永續'
+                    }
+                ];
+
+                // 5. SWOT 交叉策略矩陣 (SO / WO / ST / WT 方案)
+                const crossStrategies = {
+                    so: [
+                        {
+                            title: 'SO 策略一：依託旗艦核心資產，爭取部會原教典範基地',
+                            desc: `以校內「${topAssets[0]?.id || '核心專業設施'}」等高權重優勢為錨點（S），主動對接高教深耕與全民原教政策紅利（O），將成果轉化為全國性示範觀摩基地。`
+                        },
+                        {
+                            title: 'SO 策略二：加速原生文化數位轉譯，打造商業級串流代表作',
+                            desc: '結合深厚的部落田野採集底蘊（S）與新媒體串流商機（O），輔導學生推出成熟的文化 IP 串流影音作品，創造社會影響力與就業對接。`
+                        }
+                    ],
+                    wo: [
+                        {
+                            title: 'WO 策略一：推動行政流程數位化與範本化，借力政策資源釋放師生精力',
+                            desc: `針對行政維持佔比達 ${lowWeightRatio}% 的負荷（W），善用專案人事費導入數位協作與標準作業流程（O），讓專任團隊全心投入高階跨域產出。`
+                        },
+                        {
+                            title: 'WO 策略二：借力外部文創生態圈，補足成果驗收與職涯追蹤斷鏈',
+                            desc: '針對成果驗收較薄弱之短板（W），借助外部文創產業對跨域原生人才的迫切需求（O），導入業界實習驗收與跨校巡演發表機制。`
+                        }
+                    ],
+                    st: [
+                        {
+                            title: 'ST 策略一：全面落實「部落知情同意（FPIC）」SOP，築起智財防護牆',
+                            desc: '在發揮強大田野採集與大師技術能量的同時（S），嚴格落實部落共識與智慧創作專用權授權規範，有效化解潛在文化挪用爭議與法律侵權風險（T）。`
+                        },
+                        {
+                            title: 'ST 策略二：大師技術課程教材化與制度化，降低師資異動衝擊',
+                            desc: '將業界名師協同與高階技術實作（S）透過影像、教材與數位微學程系統化沉澱，避免因單一大師異動導致課程斷層（T）。`
+                        }
+                    ],
+                    wt: [
+                        {
+                            title: 'WT 策略一：全面對接校務 IR 大數據，以實證就業數據抵禦退場風險',
+                            desc: '改善僅記錄活動次數的單點思維（W），串接校級教務數據，以學生留校率、跨域成就與就業薪資等硬指標，確保面對補助緊縮時仍具備核心競爭力（T）。`
+                        },
+                        {
+                            title: 'WT 策略二：精實行政支出與邊際活動，集中資源於高投報特色亮點',
+                            desc: '在少子化與資源可能緊縮的外部環境下（T），主動檢討或整併比重低、效益有限的常態行政與雜項動員（W），將有限資源聚焦於最具辨識度的特色亮點。'
+                        }
+                    ]
+                };
 
                 return {
                     totalNodes,
@@ -733,9 +823,16 @@
                     currentStage,
                     stageReason,
                     topAssets,
+                    topAssetsRatio,
+                    lowWeightNodes,
                     lowWeightRatio,
-                    weaknesses,
-                    recommendations,
+                    swot: {
+                        strengths,
+                        weaknesses,
+                        opportunities,
+                        threats,
+                        crossStrategies
+                    },
                     userNodes
                 };
             };
@@ -746,6 +843,7 @@
 
                 const todayStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 
+                // 階段統計表格
                 let tableRowsHtml = report.phaseStats.map(p => `
                     <tr>
                         <td style="font-weight:bold; background-color:#f8fafc; padding:8px 10px; border:1px solid #94a3b8;">${p.phase}</td>
@@ -756,6 +854,7 @@
                     </tr>
                 `).join('');
 
+                // 核心資產表格
                 let topAssetsHtml = report.topAssets.map(a => `
                     <tr>
                         <td style="font-weight:bold; padding:8px 10px; border:1px solid #94a3b8;">${a.id}</td>
@@ -765,17 +864,61 @@
                     </tr>
                 `).join('');
 
-                let weaknessesHtml = report.weaknesses.map(w => `
-                    <div style="background:#fff1f2; border-left:4px solid #e11d48; padding:12px; margin-bottom:12px; border-radius:4px;">
-                        <p style="margin:0; font-weight:bold; color:#9f1239; font-size:11pt;">⚠️ ${w.title}</p>
-                        <p style="margin:5px 0 0 0; color:#4c0519; font-size:10.5pt; line-height:1.6;">${w.desc}</p>
+                // SWOT 矩陣清單項目 HTML
+                const strengthsListHtml = report.swot.strengths.map(s => `
+                    <div style="margin-bottom:8px;">
+                        <strong style="color:#166534;">● ${s.title}</strong><br/>
+                        <span style="color:#334155; font-size:10pt;">${s.desc}</span>
                     </div>
                 `).join('');
 
-                let recommendationsHtml = report.recommendations.map((r, i) => `
-                    <div style="background:#f0fdf4; border-left:4px solid #16a34a; padding:12px; margin-bottom:12px; border-radius:4px;">
-                        <p style="margin:0; font-weight:bold; color:#166534; font-size:11.5pt;">🎯 ${r.title}</p>
-                        <p style="margin:6px 0 0 0; color:#14532d; font-size:10.5pt; line-height:1.6;">${r.desc}</p>
+                const weaknessesListHtml = report.swot.weaknesses.map(w => `
+                    <div style="margin-bottom:8px;">
+                        <strong style="color:#9f1239;">● ${w.title}</strong><br/>
+                        <span style="color:#334155; font-size:10pt;">${w.desc}</span>
+                    </div>
+                `).join('');
+
+                const opportunitiesListHtml = report.swot.opportunities.map(o => `
+                    <div style="margin-bottom:8px;">
+                        <strong style="color:#1e40af;">● ${o.title}</strong><br/>
+                        <span style="color:#334155; font-size:10pt;">${o.desc}</span>
+                    </div>
+                `).join('');
+
+                const threatsListHtml = report.swot.threats.map(t => `
+                    <div style="margin-bottom:8px;">
+                        <strong style="color:#92400e;">● ${t.title}</strong><br/>
+                        <span style="color:#334155; font-size:10pt;">${t.desc}</span>
+                    </div>
+                `).join('');
+
+                // SO / WO / ST / WT HTML
+                const soHtml = report.swot.crossStrategies.so.map(item => `
+                    <div style="background:#f0fdf4; border-left:4px solid #16a34a; padding:12px; margin-bottom:10px; border-radius:4px;">
+                        <p style="margin:0; font-weight:bold; color:#166534; font-size:11pt;">🎯 ${item.title}</p>
+                        <p style="margin:5px 0 0 0; color:#14532d; font-size:10pt; line-height:1.6;">${item.desc}</p>
+                    </div>
+                `).join('');
+
+                const woHtml = report.swot.crossStrategies.wo.map(item => `
+                    <div style="background:#eff6ff; border-left:4px solid #2563eb; padding:12px; margin-bottom:10px; border-radius:4px;">
+                        <p style="margin:0; font-weight:bold; color:#1e40af; font-size:11pt;">🔄 ${item.title}</p>
+                        <p style="margin:5px 0 0 0; color:#1e3a8a; font-size:10pt; line-height:1.6;">${item.desc}</p>
+                    </div>
+                `).join('');
+
+                const stHtml = report.swot.crossStrategies.st.map(item => `
+                    <div style="background:#fffbeb; border-left:4px solid #d97706; padding:12px; margin-bottom:10px; border-radius:4px;">
+                        <p style="margin:0; font-weight:bold; color:#92400e; font-size:11pt;">🛡️ ${item.title}</p>
+                        <p style="margin:5px 0 0 0; color:#78350f; font-size:10pt; line-height:1.6;">${item.desc}</p>
+                    </div>
+                `).join('');
+
+                const wtHtml = report.swot.crossStrategies.wt.map(item => `
+                    <div style="background:#fff1f2; border-left:4px solid #e11d48; padding:12px; margin-bottom:10px; border-radius:4px;">
+                        <p style="margin:0; font-weight:bold; color:#9f1239; font-size:11pt;">⚠️ ${item.title}</p>
+                        <p style="margin:5px 0 0 0; color:#881337; font-size:10pt; line-height:1.6;">${item.desc}</p>
                     </div>
                 `).join('');
 
@@ -793,13 +936,13 @@
                     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                     <head>
                         <meta charset='utf-8'>
-                        <title>一般大學跨域課程模組策略診斷報告</title>
+                        <title>一般大學跨域課程模組策略診斷與SWOT分析報告</title>
                         <style>
                             body { font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif; line-height: 1.6; color: #1e293b; padding: 30px; }
                             h1 { color: #1e3a8a; text-align: center; font-size: 22pt; margin-bottom: 6px; }
                             .subtitle { text-align: center; color: #64748b; font-size: 11pt; margin-bottom: 30px; }
-                            h2 { color: #b91c1c; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 15pt; margin-top: 30px; }
-                            h3 { color: #1e40af; font-size: 12pt; margin-top: 15px; }
+                            h2 { color: #b91c1c; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 15pt; margin-top: 32px; }
+                            h3 { color: #1e40af; font-size: 12pt; margin-top: 18px; }
                             p, li { font-size: 10.5pt; line-height: 1.7; }
                             .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 15px 0; }
                             .stage-badge { display: inline-block; background: #be123c; color: white; padding: 6px 14px; font-weight: bold; border-radius: 6px; font-size: 12pt; }
@@ -809,7 +952,7 @@
                         </style>
                     </head>
                     <body>
-                        <h1>一般大學跨域課程模組 · 白話版策略診斷報告</h1>
+                        <h1>一般大學跨域課程模組 · 完整策略分析與 SWOT 診斷報告</h1>
                         <div class="subtitle">Operational Module OS 拓撲分析引擎自動生成 · 評估日期：${todayStr}</div>
 
                         <h2>一、貴校目前處於哪一個發展階段？（成熟度落點診斷）</h2>
@@ -835,8 +978,36 @@
                             </tbody>
                         </table>
 
-                        <h2>二、貴校現況核心優勢分析（長處在哪裡？）</h2>
-                        <p>透過三年成果報告所萃取的節點中，貴校共有 <strong>${report.topAssets.length} 項高權重核心資產（比重 4~5）</strong>。這些是貴校最不可被輕易取代的競爭優勢與核心護城河：</p>
+                        <h2>二、全校跨域課程模組 SWOT 綜合分析矩陣（2x2 矩陣速覽）</h2>
+                        <p>依據全校三年期末報告萃取之 <strong>${report.totalNodes} 筆節點</strong> 及其策略比重加權分佈，客觀診斷內部優劣勢並對標外在環境契機：</p>
+                        
+                        <table style="border-collapse:collapse; width:100%; margin:16px 0;">
+                            <tr>
+                                <td style="width:50%; background-color:#f0fdf4; border:2px solid #16a34a; padding:14px; vertical-align:top;">
+                                    <p style="margin:0 0 10px 0; font-size:12pt; font-weight:bold; color:#166534;">🌟 S. 內部優勢 (Strengths)</p>
+                                    ${strengthsListHtml}
+                                </td>
+                                <td style="width:50%; background-color:#fff1f2; border:2px solid #e11d48; padding:14px; vertical-align:top;">
+                                    <p style="margin:0 0 10px 0; font-size:12pt; font-weight:bold; color:#9f1239;">⚠️ W. 內部劣勢 (Weaknesses)</p>
+                                    ${weaknessesListHtml}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%; background-color:#eff6ff; border:2px solid #2563eb; padding:14px; vertical-align:top;">
+                                    <p style="margin:0 0 10px 0; font-size:12pt; font-weight:bold; color:#1e40af;">🚀 O. 外部機會 (Opportunities)</p>
+                                    ${opportunitiesListHtml}
+                                </td>
+                                <td style="width:50%; background-color:#fffbeb; border:2px solid #d97706; padding:14px; vertical-align:top;">
+                                    <p style="margin:0 0 10px 0; font-size:12pt; font-weight:bold; color:#92400e;">🛡️ T. 外部威脅 (Threats)</p>
+                                    ${threatsListHtml}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h2>三、SWOT 四大構面深入剖析（白話解讀）</h2>
+
+                        <h3>3.1 🌟 核心優勢（Strengths）：高權重核心資產與競爭護城河</h3>
+                        <p>全校共有 <strong>${report.topAssets.length} 項高權重核心資產（比重 4~5）</strong>，佔全體節點 <strong>${report.topAssetsRatio}%</strong>。這些是貴校歷年積累最深厚、不可輕易被其他院校複製的核心護城河：</p>
                         <table>
                             <thead>
                                 <tr>
@@ -851,18 +1022,37 @@
                             </tbody>
                         </table>
 
-                        <h2>三、面臨痛點與待改善之處（劣勢／瓶頸在哪裡？）</h2>
-                        <p>客觀檢視貴校現有資源拓撲結構，若要邁向下一階梯，建議關注以下幾項關鍵短板：</p>
-                        ${weaknessesHtml}
+                        <h3>3.2 ⚠️ 內部短板與痛點（Weaknesses）：結構性瓶頸分析</h3>
+                        <p>客觀檢視貴校現有資源拓撲結構，目前主要瓶頸包含：</p>
+                        ${weaknessesListHtml}
 
-                        <h2>四、具體建議方針與下一步突破路徑</h2>
-                        <p>依據當前發展階段與資源配置，建議貴校在未來的計畫執行中聚焦以下四大策略方針：</p>
-                        ${recommendationsHtml}
+                        <h3>3.3 🚀 外部機會（Opportunities）：政策紅利與時代利基</h3>
+                        <p>結合教育部、原民會政策導向與文創產業趨勢，貴校可掌握以下重要戰略機會：</p>
+                        ${opportunitiesListHtml}
+
+                        <h3>3.4 🛡️ 外部威脅（Threats）：潛在營運風險預警</h3>
+                        <p>面對少子化浪潮、智財倫理規範與專案補助變動，貴校應超前部署防範以下風險：</p>
+                        ${threatsListHtml}
+
+                        <h2>四、SWOT 交叉策略矩陣與突破行動方針（SO / WO / ST / WT 方案）</h2>
+                        <p>依據內部資源能力（S/W）與外部環境契機（O/T）之交叉比對，提出四大具體落地策略方針：</p>
+
+                        <h3>🟢 4.1 SO 增長突破策略（發揮優勢 · 把握機會）</h3>
+                        ${soHtml}
+
+                        <h3>🔵 4.2 WO 翻轉改善策略（克服劣勢 · 把握機會）</h3>
+                        ${woHtml}
+
+                        <h3>🟠 4.3 ST 避險多元策略（發揮優勢 · 化解威脅）</h3>
+                        ${stHtml}
+
+                        <h3>🔴 4.4 WT 精實防禦策略（精實劣勢 · 迴避威脅）</h3>
+                        ${wtHtml}
 
                         <br/>
                         <hr style="border:0; border-top:1px dashed #cbd5e1; margin:30px 0;"/>
 
-                        <h2>五、附錄：全校跨域課程模組節點清單總覽（共 ${report.userNodes.length} 筆）</h2>
+                        <h2>五、附錄：全校跨域課程模組節點資料總表（共 ${report.userNodes.length} 筆）</h2>
                         <table>
                             <thead>
                                 <tr>
@@ -887,7 +1077,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `一般大學跨域課程模組_白話策略診斷報告_${new Date().toISOString().slice(0,10)}.doc`;
+                link.download = `一般大學跨域課程模組_完整策略分析與SWOT診斷報告_${new Date().toISOString().slice(0,10)}.doc`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -913,7 +1103,7 @@
 
             return (
                 <div className="flex h-screen w-full relative overflow-hidden bg-slate-50">
-                    {/* 左側戰略折疊風琴式面板 (明亮磨砂大字卡片) */}
+                    {/* 左側策略折疊風琴式面板 (明亮磨砂大字卡片) */}
                     <div className={`transition-all-custom glass-sidebar p-7 z-20 flex flex-col shadow-xl overflow-y-auto absolute h-full ${isSidebarOpen ? 'translate-x-0 w-[420px]' : '-translate-x-full w-[420px]'}`}>
                         <div className="mb-6">
                             <h1 className="text-2xl font-black text-slate-800 leading-tight">一般大學<br/><span className="text-rose-600 text-3xl font-black tracking-tighter">跨域課程資源地圖</span></h1>
@@ -921,7 +1111,7 @@
                             <p className="text-[11px] text-slate-400 font-bold mt-1.5 uppercase tracking-[0.3em]">Operational Module OS v6.2</p>
                         </div>
                         
-                        {/* 📄 白話版策略診斷報告與 Word 下載按鈕 */}
+                        {/* 📄 完整策略診斷報告 (含SWOT) 與 Word 下載按鈕 */}
                         <div className="mb-6">
                             <button 
                                 onClick={() => setShowReportModal(true)}
@@ -930,7 +1120,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span>閱讀白話策略報告 / 下載 Word</span>
+                                <span>完整策略報告與 SWOT / 下載 Word</span>
                             </button>
                         </div>
                         
@@ -990,9 +1180,9 @@
                                                     </div>
                                                 </div>
                                                 
-                                                {/* 3. VRIO 戰略建議 */}
+                                                {/* 3. VRIO 策略建議 */}
                                                 <div className="pt-3 border-t border-slate-100">
-                                                    <span className="text-[11px] text-blue-600 font-extrabold uppercase tracking-wider block mb-2">⚡ VRIO 戰略核心建議</span>
+                                                    <span className="text-[11px] text-blue-600 font-extrabold uppercase tracking-wider block mb-2">⚡ VRIO 策略核心建議</span>
                                                     <p className="text-slate-700 leading-relaxed bg-blue-50/80 border border-blue-100 p-3.5 rounded-2xl font-semibold text-[13px] italic">
                                                         "{strat.suggestions}"
                                                     </p>
@@ -1097,8 +1287,8 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-black text-slate-800">全校跨域課程模組 · 白話版策略診斷報告</h2>
-                                            <p className="text-xs text-slate-400 font-bold mt-0.5">系統依據即時節點與比重自動運算生成 · 供校內主管與同仁直接閱讀</p>
+                                            <h2 className="text-xl font-black text-slate-800">全校跨域課程模組 · 完整策略分析與 SWOT 診斷報告</h2>
+                                            <p className="text-xs text-slate-400 font-bold mt-0.5">系統依據即時節點與比重自動運算生成 · 整合 SWOT 矩陣與交叉策略方針</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -1125,7 +1315,7 @@
                                 </div>
 
                                 {/* Modal 主要內容滾動區 */}
-                                <div className="p-6 md:p-8 overflow-y-auto space-y-8 text-slate-700">
+                                <div className="p-6 md:p-8 overflow-y-auto space-y-9 text-slate-700">
                                     
                                     {/* 第一章：當前發展階段與位階落點 */}
                                     <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 p-6 rounded-3xl border border-blue-100/80 shadow-sm">
@@ -1160,63 +1350,269 @@
                                         </div>
                                     </div>
 
-                                    {/* 第二章：核心優勢分析 */}
+                                    {/* 第二章：全校跨域課程模組 SWOT 綜合分析矩陣 (2x2 矩陣速覽) */}
                                     <div>
-                                        <h3 className="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
-                                            <span className="text-emerald-500">🌟</span> 二、貴校現況核心優勢（長處在哪裡？）
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h3 className="text-base font-black text-slate-800 flex items-center gap-2">
+                                                <span>🧭</span> 二、全校跨域課程模組 SWOT 綜合分析矩陣（2x2 矩陣速覽）
+                                            </h3>
+                                            <span className="text-xs font-bold text-slate-400">依 {reportData.totalNodes} 筆節點權重動態診斷</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            
+                                            {/* S. 內部優勢 */}
+                                            <div className="p-5 bg-emerald-50/70 border-2 border-emerald-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl">🌟</span>
+                                                        <h4 className="text-sm font-black text-emerald-900">S. 內部優勢 (Strengths)</h4>
+                                                    </div>
+                                                    <span className="text-[10px] font-black bg-emerald-200/80 text-emerald-800 px-2.5 py-0.5 rounded-full">核心競爭力</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.strengths.map((s, idx) => (
+                                                        <div key={idx} className="bg-white/80 p-3.5 rounded-2xl border border-emerald-100">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="font-extrabold text-xs text-emerald-950">{s.title}</span>
+                                                                <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">{s.tag}</span>
+                                                            </div>
+                                                            <p className="text-[11.5px] text-slate-600 leading-relaxed font-medium">{s.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* W. 內部劣勢 */}
+                                            <div className="p-5 bg-rose-50/70 border-2 border-rose-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl">⚠️</span>
+                                                        <h4 className="text-sm font-black text-rose-900">W. 內部劣勢 (Weaknesses)</h4>
+                                                    </div>
+                                                    <span className="text-[10px] font-black bg-rose-200/80 text-rose-800 px-2.5 py-0.5 rounded-full">待突破瓶頸</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.weaknesses.map((w, idx) => (
+                                                        <div key={idx} className="bg-white/80 p-3.5 rounded-2xl border border-rose-100">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="font-extrabold text-xs text-rose-950">{w.title}</span>
+                                                                <span className="text-[9px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded">{w.tag}</span>
+                                                            </div>
+                                                            <p className="text-[11.5px] text-slate-600 leading-relaxed font-medium">{w.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* O. 外部機會 */}
+                                            <div className="p-5 bg-blue-50/70 border-2 border-blue-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl">🚀</span>
+                                                        <h4 className="text-sm font-black text-blue-900">O. 外部機會 (Opportunities)</h4>
+                                                    </div>
+                                                    <span className="text-[10px] font-black bg-blue-200/80 text-blue-800 px-2.5 py-0.5 rounded-full">政策與市場利基</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.opportunities.map((o, idx) => (
+                                                        <div key={idx} className="bg-white/80 p-3.5 rounded-2xl border border-blue-100">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="font-extrabold text-xs text-blue-950">{o.title}</span>
+                                                                <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{o.tag}</span>
+                                                            </div>
+                                                            <p className="text-[11.5px] text-slate-600 leading-relaxed font-medium">{o.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* T. 外部威脅 */}
+                                            <div className="p-5 bg-amber-50/70 border-2 border-amber-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl">🛡️</span>
+                                                        <h4 className="text-sm font-black text-amber-900">T. 外部威脅 (Threats)</h4>
+                                                    </div>
+                                                    <span className="text-[10px] font-black bg-amber-200/80 text-amber-800 px-2.5 py-0.5 rounded-full">潛在營運風險</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.threats.map((t, idx) => (
+                                                        <div key={idx} className="bg-white/80 p-3.5 rounded-2xl border border-amber-100">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="font-extrabold text-xs text-amber-950">{t.title}</span>
+                                                                <span className="text-[9px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded">{t.tag}</span>
+                                                            </div>
+                                                            <p className="text-[11.5px] text-slate-600 leading-relaxed font-medium">{t.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    {/* 第三章：SWOT 四大面向深度剖析 */}
+                                    <div className="space-y-6">
+                                        <h3 className="text-base font-black text-slate-800 flex items-center gap-2">
+                                            <span>🔍</span> 三、SWOT 四大構面深度剖析（白話解讀）
+                                        </h3>
+
+                                        {/* 3.1 核心優勢資產清單 */}
+                                        <div className="p-5.5 bg-slate-50 border border-slate-200/80 rounded-3xl">
+                                            <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                                                <span className="text-emerald-500">🌟</span> 3.1 核心優勢（Strengths）：高權重核心資產與競爭護城河
+                                            </h4>
+                                            <p className="text-xs text-slate-500 font-semibold mb-4">
+                                                全校共有 <strong>{reportData.topAssets.length} 項高權重核心資產（比重 4~5，佔 {reportData.topAssetsRatio}%）</strong>，這是貴校歷年積累最深厚、不可輕易被其他院校複製的核心護城河：
+                                            </p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {reportData.topAssets.map((a, idx) => (
+                                                    <div key={idx} className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                                                        <div className="flex items-center justify-between mb-1.5">
+                                                            <span className="font-black text-[13.5px] text-slate-800">{a.id}</span>
+                                                            <span className="text-[10px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">比重 {a.importance}</span>
+                                                        </div>
+                                                        <p className="text-xs text-slate-600 leading-relaxed font-medium">"{a.desc || '核心優勢項目'}"</p>
+                                                        <span className="text-[10px] font-bold text-slate-400 mt-2 block">分類：{a.source || a.group.split(':')[0]}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 3.2 劣勢與瓶頸 */}
+                                        <div className="p-5.5 bg-slate-50 border border-slate-200/80 rounded-3xl">
+                                            <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                                                <span className="text-rose-500">⚠️</span> 3.2 內部短板（Weaknesses）：結構性瓶頸診斷
+                                            </h4>
+                                            <p className="text-xs text-slate-500 font-semibold mb-3">
+                                                客觀檢視貴校現有資源拓撲結構，若要邁向下一個成熟位階，建議檢視以下短板：
+                                            </p>
+                                            <div className="space-y-2.5">
+                                                {reportData.swot.weaknesses.map((w, idx) => (
+                                                    <div key={idx} className="p-3.5 bg-white border border-rose-100 rounded-2xl">
+                                                        <h5 className="font-extrabold text-xs text-rose-800">{w.title}</h5>
+                                                        <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{w.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 3.3 外部機會 */}
+                                        <div className="p-5.5 bg-slate-50 border border-slate-200/80 rounded-3xl">
+                                            <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                                                <span className="text-blue-500">🚀</span> 3.3 外部機會（Opportunities）：政策紅利與時代利基
+                                            </h4>
+                                            <p className="text-xs text-slate-500 font-semibold mb-3">
+                                                結合教育部、原民會政策導向與文創產業趨勢，貴校可掌握以下重要機會：
+                                            </p>
+                                            <div className="space-y-2.5">
+                                                {reportData.swot.opportunities.map((o, idx) => (
+                                                    <div key={idx} className="p-3.5 bg-white border border-blue-100 rounded-2xl">
+                                                        <h5 className="font-extrabold text-xs text-blue-900">{o.title}</h5>
+                                                        <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{o.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 3.4 外部威脅 */}
+                                        <div className="p-5.5 bg-slate-50 border border-slate-200/80 rounded-3xl">
+                                            <h4 className="text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                                                <span className="text-amber-500">🛡️</span> 3.4 外部威脅（Threats）：潛在營運風險預警
+                                            </h4>
+                                            <p className="text-xs text-slate-500 font-semibold mb-3">
+                                                面對少子化浪潮、智財倫理規範與專案補助變動，貴校應超前部署防範以下風險：
+                                            </p>
+                                            <div className="space-y-2.5">
+                                                {reportData.swot.threats.map((t, idx) => (
+                                                    <div key={idx} className="p-3.5 bg-white border border-amber-100 rounded-2xl">
+                                                        <h5 className="font-extrabold text-xs text-amber-900">{t.title}</h5>
+                                                        <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{t.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    {/* 第四章：SWOT 交叉策略矩陣與突破行動方針 */}
+                                    <div>
+                                        <h3 className="text-base font-black text-slate-800 mb-1 flex items-center gap-2">
+                                            <span>🎯</span> 四、SWOT 交叉策略矩陣與突破行動方針（SO / WO / ST / WT 方案）
                                         </h3>
                                         <p className="text-xs text-slate-500 font-semibold mb-4">
-                                            全校共有 <strong>{reportData.topAssets.length} 項高權重核心資產（比重 4~5）</strong>，這是貴校歷年積累最深厚、不可輕易被複製的護城河：
+                                            將內部優劣勢（S/W）與外部機遇威脅（O/T）進行交叉比對，制定四大維度落地執行方針：
                                         </p>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {reportData.topAssets.map((a, idx) => (
-                                                <div key={idx} className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl">
-                                                    <div className="flex items-center justify-between mb-1.5">
-                                                        <span className="font-black text-[14px] text-slate-800">{a.id}</span>
-                                                        <span className="text-[10px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">比重 {a.importance}</span>
-                                                    </div>
-                                                    <p className="text-xs text-slate-600 leading-relaxed font-medium">"{a.desc || '核心優勢項目'}"</p>
-                                                    <span className="text-[10px] font-bold text-slate-400 mt-2 block">分類：{a.source || a.group.split(':')[0]}</span>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            
+                                            {/* SO 策略 */}
+                                            <div className="p-5 bg-gradient-to-br from-emerald-50/80 to-white border border-emerald-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="p-1.5 bg-emerald-600 text-white rounded-lg text-xs font-black">SO</span>
+                                                    <h4 className="font-black text-sm text-emerald-950">增長突破策略（發揮優勢 · 把握機會）</h4>
                                                 </div>
-                                            ))}
+                                                <div className="space-y-3">
+                                                    {reportData.swot.crossStrategies.so.map((item, idx) => (
+                                                        <div key={idx} className="p-3.5 bg-white rounded-2xl border border-emerald-100">
+                                                            <h5 className="font-extrabold text-xs text-emerald-900">{item.title}</h5>
+                                                            <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{item.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* WO 策略 */}
+                                            <div className="p-5 bg-gradient-to-br from-blue-50/80 to-white border border-blue-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="p-1.5 bg-blue-600 text-white rounded-lg text-xs font-black">WO</span>
+                                                    <h4 className="font-black text-sm text-blue-950">翻轉改善策略（克服劣勢 · 把握機會）</h4>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.crossStrategies.wo.map((item, idx) => (
+                                                        <div key={idx} className="p-3.5 bg-white rounded-2xl border border-blue-100">
+                                                            <h5 className="font-extrabold text-xs text-blue-900">{item.title}</h5>
+                                                            <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{item.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* ST 策略 */}
+                                            <div className="p-5 bg-gradient-to-br from-amber-50/80 to-white border border-amber-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="p-1.5 bg-amber-600 text-white rounded-lg text-xs font-black">ST</span>
+                                                    <h4 className="font-black text-sm text-amber-950">避險多元策略（發揮優勢 · 化解威脅）</h4>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.crossStrategies.st.map((item, idx) => (
+                                                        <div key={idx} className="p-3.5 bg-white rounded-2xl border border-amber-100">
+                                                            <h5 className="font-extrabold text-xs text-amber-900">{item.title}</h5>
+                                                            <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{item.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* WT 策略 */}
+                                            <div className="p-5 bg-gradient-to-br from-rose-50/80 to-white border border-rose-200 rounded-3xl shadow-sm">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="p-1.5 bg-rose-600 text-white rounded-lg text-xs font-black">WT</span>
+                                                    <h4 className="font-black text-sm text-rose-950">精實防禦策略（精實劣勢 · 迴避威脅）</h4>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {reportData.swot.crossStrategies.wt.map((item, idx) => (
+                                                        <div key={idx} className="p-3.5 bg-white rounded-2xl border border-rose-100">
+                                                            <h5 className="font-extrabold text-xs text-rose-900">{item.title}</h5>
+                                                            <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{item.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
 
-                                    {/* 第三章：面臨痛點與短板 */}
-                                    <div>
-                                        <h3 className="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
-                                            <span className="text-rose-500">⚠️</span> 三、面臨痛點與待改善之處（劣勢／瓶頸在哪裡？）
-                                        </h3>
-                                        <p className="text-xs text-slate-500 font-semibold mb-3">
-                                            依據現有網絡拓撲結構，若要邁向下一個成熟位階，建議檢視以下短板：
-                                        </p>
-                                        <div className="space-y-3">
-                                            {reportData.weaknesses.map((w, idx) => (
-                                                <div key={idx} className="p-4 bg-rose-50/70 border border-rose-100 rounded-2xl">
-                                                    <h4 className="font-extrabold text-sm text-rose-800">{w.title}</h4>
-                                                    <p className="text-xs text-rose-700/90 font-medium mt-1 leading-relaxed">{w.desc}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* 第四章：具體建議方針 */}
-                                    <div>
-                                        <h3 className="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
-                                            <span className="text-blue-500">🎯</span> 四、具體建議方針與下一步突破路徑
-                                        </h3>
-                                        <p className="text-xs text-slate-500 font-semibold mb-3">
-                                            為協助貴校持續升級並發揮最大培育影響力，建議優先推動以下四大方針：
-                                        </p>
-                                        <div className="space-y-3">
-                                            {reportData.recommendations.map((r, idx) => (
-                                                <div key={idx} className="p-4.5 bg-blue-50/50 border border-blue-100 rounded-2xl">
-                                                    <h4 className="font-extrabold text-sm text-blue-900">{r.title}</h4>
-                                                    <p className="text-xs text-slate-700 font-medium mt-1.5 leading-relaxed">{r.desc}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
                                 </div>
 
                                 {/* Modal 底部操作按鈕 */}
